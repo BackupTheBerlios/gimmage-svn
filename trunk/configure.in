@@ -13,7 +13,7 @@ dnl Package name and version number (user defined)
 dnl -----------------------------------------------
 
 PACKAGE=gimmage
-VERSION=0.2.0
+VERSION=0.2.1
 
 dnl ---
 dnl default prefix
