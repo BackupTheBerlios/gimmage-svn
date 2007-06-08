@@ -663,7 +663,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			#ifdef DEBUG
 			std::cout << "KEY_EVENT: Escape was pressed. Quitting... \n";
 			#endif
-			hide();
+			Button_Quit.activate();
 			break;
 			
 		case GDK_BackSpace:
@@ -829,14 +829,14 @@ void AppWindow::load_config(void)
 	v_height = 0;
 
 	char line[100];
-	char * home;
+	Glib::ustring home;
 
 	Glib::ustring configfile;
 
-	if( (home = getenv( "HOME" )) == NULL )
+	if( (home = Glib::get_home_dir() ) == "" )
 		std::cerr << GT( "LOAD_CONFIG: Failed to find home directory" ) << std::endl;
 	else
-		configfile = (Glib::ustring) home + (Glib::ustring)  "/.gimmagerc";
+		configfile = home + (Glib::ustring)  "/.gimmagerc";
 		
 	
 	if( (config = fopen(configfile.c_str(),"r")) == NULL )
@@ -898,14 +898,13 @@ void AppWindow::save_config(void)
 	
 	FILE * config;
 
-	char * home;
-
+	Glib::ustring home;
 	Glib::ustring configfile;
 
-	if( (home = getenv( "HOME" )) == NULL )
+	if( (home = Glib::get_home_dir() ) == "" )
 		std::cerr << GT( "SAVE_CONFIG: Failed to find home directory" ) << std::endl;
 	else
-		configfile = (Glib::ustring) home + (Glib::ustring) "/.gimmagerc";
+		configfile = home + (Glib::ustring) "/.gimmagerc";
 	
 	if( (config = fopen(configfile.c_str(),"w")) == NULL )
 		{
