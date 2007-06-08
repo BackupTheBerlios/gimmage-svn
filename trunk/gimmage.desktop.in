@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=gimmage
+Exec=@prefix@/bin/gimmage
+Type=Application
+Categories=Application;Graphics;
+Comment=A simple image viewer.

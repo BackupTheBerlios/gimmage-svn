@@ -1,0 +1,114 @@
+Copyright 2005 Bartek Kostrzewa
+
+    gimmage is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+    USA
+
+
+
+--------------------------------
+GIMMAGE - THE GTKMM IMAGE VIEWER
+--------------------------------
+
+Contents of this file:
+
+	REQUIREMENTS
+	INSTALLATION
+	DEBUGGING VERSION
+	UNINSTALLATION	
+	USER GUIDE
+
+
+If you happen to create a binary package of this software I would be very
+happy if you could send it to me so that I could distribute it. Thank you
+very much!
+
+
+REQUIREMENTS
+------------
+ 	
+	gtkmm and its dependencies
+	curl / libcurl (http://curl.haxx.se - most probably included with your distribution)
+	libmagic and its dependencies
+	gettext / libintl
+	
+	of course you will need the *-dev packages for compiling!
+
+
+INSTALLATION
+------------
+
+Execute ./configure --prefix=YOURPREFIX
+setting YOURPREFIX to your preffered prefix (e.g. /usr or /usr/local .. )
+
+In the extraction directory do:
+	make
+
+and then as root:
+	make install
+
+this will install gimmage to /usr/local/bin/gimmage and the icons to
+/usr/local/share/gimmage/icons (or the prefix you selected)
+
+If you want to try gimmage out before installing, just run it from the
+extraction directory:
+	src/gimmage
+
+
+DEBUGGING VERSION
+-----------------
+
+Further, for the debugging version:
+	./configure --prefix=/usr --enable-debug
+	make	
+
+and as root:
+	make install 
+
+Note: the debugging version is slow and spouts out a lot of text.
+
+
+UNINSTALLATION
+--------------
+
+to uninstall, do:
+
+	make uninstall
+
+in the extraction directory as root
+
+
+USERGUIDE
+---------
+
+when you start gimmage with * as an argument it will scan the current 
+working directory and all subdirectories to one level and try to display 
+all files therein (if they appear to be supported images)
+
+starting gimmage with a directory as its argument will make it enter the
+directory and scan it for diplayable images
+
+in your filemanager you can configure gimmage to be an application with
+which to open image files and/or directories
+
+by clicking the "Show File Browser" button on the right you can select and
+drag directories and images into the image display area to have them opened
+and displayed. Single images can also be double-clicked, which will cause
+the directory current directory to be searched for other images and the
+currently selected image to be displayed.
+
+
+have fun!
+
+-Bartek

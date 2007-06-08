@@ -1,0 +1,15 @@
+BUGS
+-the filechooser breaks as follows:
+	open a set of files (any way)
+	press f to show filebrowser
+	note that filechooser updates currently open file by selecting it
+	close filechooser
+	open filechooser
+	filechooser will select random file and continue to do so
+	
+TODO
+-add print support!! (could use some help on this one)
+-add "all files" filefilter to filechooser
+-better zooming and rotation
+-add image counter to titlebar
+

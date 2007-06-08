@@ -1,0 +1,158 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gimmage 0.1.9\n"
+"Report-Msgid-Bugs-To: bartek __ NOSPAM __ AT __ runbox __ DOT __ com\n"
+"POT-Creation-Date: 2007-06-07 22:19+0100\n"
+"PO-Revision-Date: 2006-03-01 11:31+0000\n"
+"Last-Translator: Bartek Kostrzewa zoombat |AT| runbox |DOT| com>\n"
+"Language-Team: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/main.cpp:78
+#, fuzzy
+msgid "Gimmage pixmaps could not be found! This will cause a segfault.\n"
+msgstr ""
+"Die icons für gimmage konnten nicht gefunden werden. Dies wird ein segfault "
+"verursachen.\n"
+
+#~ msgid "Save Image?"
+#~ msgstr "Bild Speichern?"
+
+#~ msgid "Saving failed."
+#~ msgstr "Speichern fehlgeschlagen."
+
+#~ msgid "Previous Image (Backspace)"
+#~ msgstr "Vorheriges Bild (Backspace)"
+
+#~ msgid "Next Image (Space)"
+#~ msgstr "Nächstes Bild (Leertaste)"
+
+#~ msgid "Zoom In (+)"
+#~ msgstr "Vergrössern (+)"
+
+#~ msgid "Zoom Out (-)"
+#~ msgstr "Verkleinern (-)"
+
+#~ msgid "Zoom to Original Size (1)"
+#~ msgstr "Zur Originalgrösse (1)"
+
+#~ msgid "Rotate 90 Degrees Anticlockwise (a)"
+#~ msgstr "Um 90 Grad gegen den Uhrzeigersinn drehen (a)"
+
+#~ msgid "Rotate 90 Degrees Clockwise (c)"
+#~ msgstr "Um 90 Grad im Uhrzeigersinn drehen (c)"
+
+#~ msgid "Save Modified Image (s)"
+#~ msgstr "Das veränderte Bild speichern (s)"
+
+#~ msgid "Display Print Dialog (p)"
+#~ msgstr "Den Druckdialog anzeigen (p)"
+
+#~ msgid "Show File Browser (f)"
+#~ msgstr "Den Dateibrowser zeigen (f)"
+
+#~ msgid "Image Formats"
+#~ msgstr "Bildformate"
+
+#~ msgid "LOAD_CONFIG: Failed to find home directory"
+#~ msgstr "LOAD_CONFIG: Das Heimverzeichnis wurde nicht gefunden"
+
+#~ msgid ""
+#~ "LOAD_CONFIG: Failed to open config file! (~/.gimmagerc)\n"
+#~ "Will create on exit."
+#~ msgstr ""
+#~ "LOAD_CONFIG: Das öffnen der Konfigurationsdatei ist fehlgeschlagen!\n"
+#~ "(~/.gimmagerc) Sie wird beim Beenden erstellt."
+
+#~ msgid "SAVE_CONFIG: Saving config file to $HOME/.gimmagerc\n"
+#~ msgstr ""
+#~ "SAVE_CONFIG: Die Konfigurations wird in $HOME/.gimmagerc gespeichert\n"
+
+#~ msgid "SAVE_CONFIG: Failed to find home directory"
+#~ msgstr "SAVE_CONFIG: Das Heimverzeichnis wurde nicht gefunden"
+
+#~ msgid "SAVE_CONFIG: Failed to write config file."
+#~ msgstr ""
+#~ "SAVE_CONFIG: Das Schreiben der Konfigurationsdatei ist fehlgeschlagen"
+
+#~ msgid "FILEMANAGER: ERROR during magic open"
+#~ msgstr "FILEMANAGER: FEHLER beim Öffnen von magic"
+
+#~ msgid "FILEMANAGER: ERROR during magic load"
+#~ msgstr "FILEMANAGER: FEHLER beim Laden von magic"
+
+#~ msgid "OPENFILES: Stat Error! Level 1 "
+#~ msgstr "OPENFILES: Stat Fehler! Ebene 1 "
+
+#~ msgid "OPENFILES: Stat Error! Level 2 "
+#~ msgstr "OPENFILES: Stat Fehler! Ebene 2 "
+
+#~ msgid "No file to load."
+#~ msgstr "Keine Datei zum Laden."
+
+#~ msgid "FILTER_FILENAME: The file type could not be determined: "
+#~ msgstr "FILTER_FILENAME: Der Dateityp konnte nicht festgestellt werden: "
+
+#~ msgid "FILTER_SAVE_FILENAME: The file type could not be determined: "
+#~ msgstr ""
+#~ "FILTER_SAVE_FILENAME: Der Dateityp konnte nicht festgestellt werden: "
+
+#~ msgid ""
+#~ "LOADIMAGE: There has been an error allocating memory or understanding the "
+#~ "image format. \n"
+#~ "\t"
+#~ msgstr ""
+#~ "LOADIMAGE: Es ist ein Fehler bei der Speicherallokation aufgetreten "
+#~ "oder \n"
+#~ "das Bildformat wurde nicht verstanden. \n"
+#~ "\t"
+
+#~ msgid ""
+#~ "LOADIMAGE: There has been an error loading the file. \n"
+#~ "\t"
+#~ msgstr ""
+#~ "LOADIMAGE: Es ist ein Fehler beim Laden der Datei aufgetreten. \n"
+#~ "\t"
+
+#~ msgid ""
+#~ "SCALEIMAGE(sclf): There has been a problem scaling the image. We've "
+#~ "probably run out of memory.\n"
+#~ msgstr ""
+#~ "SCALEIMAGE(sclf): Es ist ein Problem beim Skalieren des Bilder "
+#~ "aufgetreten. Wir haben warscheinlich keinen Speicher mehr.\n"
+
+#~ msgid ""
+#~ "ROTATEIMAGE: There's been an error rotating the image. We've probably run "
+#~ "out of memory.\n"
+#~ msgstr ""
+#~ "ROTATEIMAGE: Es ist ein Problem beim Drehen des Bildes aufgetreten. Wir "
+#~ "haben warscheinlich keinen Speicher mehr.\n"
+
+#~ msgid ""
+#~ "If you save the current file will be overwritten which can result in "
+#~ "quality losses. Do you still want to save? You can also specify a new "
+#~ "filename below. "
+#~ msgstr ""
+#~ "Beim Speichern wird die Datei überschrieben was sich in Qualit�"
+#~ "�tseinbußen auswirken kann. Wollen Sie trotzdem speichern? Sie können "
+#~ "hierunter auch einen neuen Dateinamen angeben. "
+
+#~ msgid ""
+#~ "Saving failed. Please check whether you have sufficient rights to the "
+#~ "file and possibly try again. The image format might be unsupported for "
+#~ "saving or we may have run out of memory. Currently we can save only JPEG, "
+#~ "PNG and BMP.( as limited by gdk-pixbuf )"
+#~ msgstr ""
+#~ "Das Speichern ist fehlgeschlagen. Bitte überprüfen Sie ob Sie "
+#~ "genügende Zugriffsberechtigungen zur Datei besitzen und versuchen Sie es "
+#~ "gegebenen-falls noch einmal. Es kann sein dass das Bildformat zur "
+#~ "Speicherung nicht unterstütz wird oder uns ist der Speicher ausgegangen. "
+#~ "Zur Zeit kann gdk-pixbuf nur die JPEG-, PNG- und BMP-Formate speichern. "
