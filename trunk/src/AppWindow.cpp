@@ -197,9 +197,8 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	show_all_children();
 
 	// now hide the filebrowser, i'm lazy to type show for all children!
-    FileChooser.set_size_request( FileChooser.get_width(), 220 );
-    FileChooser.set_size_request( FileChooser.get_width(), 220 );
-   	FileChooser.hide();
+	FileChooser.set_size_request( FileChooser.get_width(), 220 );
+	FileChooser.hide();
 	// make the save button insensitive, it will be usable once it is needed.
 	Button_Save.set_sensitive(false);
 	Button_Print.set_sensitive(false);
@@ -630,12 +629,43 @@ void AppWindow::on_button_print(void)
 	{
 	}
 
+/* hide() destroys the underlying GObject (i think), so we'd like to use 
+   resize instead, otherwise the filechooser is not updated
+   properly (Bug http://developer.berlios.de/bugs/?func=detailbug&bug_id=11277&group_id=5973) 
+   However, that does not work either because once the user changes the size of the filechooser,
+   it all breaks...
+*/
 void AppWindow::on_button_show_filechooser(void)
 	{
-	set_filechooser_dir();
+	//static int previous_filechooser_height = 220; // we want to keep the value around and 220 is a good default for 3 lines
+	
+	
 	FileChooser.set_filter(ImageFilter);
+	
+/* #ifdef DEBUG
+	std::cout << "APPWINDOW: on_button_show_filechooser height before: " << FileChooser.get_height() << std::endl;
+	std::cout << "APPWINDOW: on_button_show_filechooser previous before: " << previous_filechooser_height  << std::endl;
+#endif //DEBUG
+	
+	if( FileChooser.get_height() > 1 ) 
+		{
+		previous_filechooser_height = FileChooser.get_height();
+		FileChooser.set_size_request( FileChooser.get_width(), 1 );
+		}
+	else
+		FileChooser.set_size_request( FileChooser.get_width(), previous_filechooser_height );
+	
+	
+	
+#ifdef DEBUG
+	std::cout << "APPWINDOW: on_button_show_filechooser height after: " << FileChooser.get_height() << std::endl;
+	std::cout << "APPWINDOW: on_button_show_filechooser previous after: " << previous_filechooser_height  << std::endl;
+#endif //DEBUG	*/
+		
 	FileChooser.is_visible() ? FileChooser.hide() : FileChooser.show();
 	while(Gtk::Main::events_pending()) Gtk::Main::iteration();
+	set_filechooser_dir();
+	
 	ImageBox.ScaleImage2(ImageScroller.get_width()-4,ImageScroller.get_height()-4,&scalefactor);
 	}
 

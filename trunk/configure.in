@@ -46,7 +46,8 @@ AC_ARG_ENABLE(debug,
     [gimmage_debug="yes"])
 
 if test "$gimmage_debug" = "yes"; then
-    AC_DEFINE_UNQUOTED([DEBUG],[],[debug build])    
+    AC_DEFINE_UNQUOTED([DEBUG],[],[debug build])
+    CXXFLAGS="-ggdb ${CXXFLAGS}"
 fi
 
 # Switch to C++ mode and check for needed C++ headers
