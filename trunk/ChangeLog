@@ -1,3 +1,6 @@
+08.06.07 - 0.2.1
+-Fix configuration file managment.
+
 06.06.07 - 0.2.0
 -It is no longer required to compile a LOCAL version to run gimmage
  from the extraction directory, it now checks at run-time.

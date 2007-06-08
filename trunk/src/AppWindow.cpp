@@ -188,6 +188,8 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 
 	Button_Quit.signal_clicked().connect(sigc::mem_fun(*this, &AppWindow::on_button_quit));
 
+	signal_hide().connect(sigc::mem_fun(*this, &AppWindow::save_config));
+
 	// let's catch keystrokes
 	signal_key_press_event().connect(sigc::mem_fun(*this,&AppWindow::on_key_press_event) );
 	
