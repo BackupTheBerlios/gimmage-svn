@@ -69,7 +69,7 @@ void find_iconpath( Glib::ustring progname )
 	// last resort to current working directory for pixmaps (when running
 	// gimmage from the extraction directory to try it out for instance
 	if( stat( iconpath.c_str(), &filemode) != 0 ) 
-		iconpath = "pixmaps/";	
+		iconpath = "../pixmaps/";	
 
 	#ifdef DEBUG
 	std::cout << "FIND_ICONPATH3: trying: " << iconpath << std::endl;
@@ -84,24 +84,26 @@ void find_iconpath( Glib::ustring progname )
 
 int main(int argc, char *argv[])
 	{
-	// depending on where we are, we must try to local our pixmaps! I know this won't
+	
+#ifdef DEBUG
+	std::cout << "LOCALE: " << LC_MESSAGES << " " << PACKAGE << " " << LOCALEDIR << std::endl;
+#endif // DEBUG 	
+
+	setlocale (LC_CTYPE, "");
+	setlocale (LC_MESSAGES, "");
+  	bindtextdomain (PACKAGE, LOCALEDIR);
+  	textdomain (PACKAGE);
+
+	// depending on where we are, we must try to locate our pixmaps! I know this won't
 	// work very well if the executable is not the path of the user
 	// IE: root launching absolute /usr/local/bin/gimmage but not having /usr/local in his path
 	// any solutions?
 
-	setlocale (LC_ALL, "");
-  	bindtextdomain (PACKAGE, LOCALEDIR);
-  	textdomain (PACKAGE);
-
-#ifdef DEBUG
-	find_iconpath( "gimmage-debug" );
-#else
 	find_iconpath( "gimmage" );
-#endif
 
 #ifdef DEBUG
 	std::cout << "Icons in: " << iconpath << std::endl;
-#endif
+#endif // DEBUG
 
 	Gtk::Main kit(argc,argv);
 

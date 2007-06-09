@@ -6075,7 +6075,7 @@ cat >>confdefs.h <<_ACEOF
 #define DEBUG
 _ACEOF
 
-    AM_CXXFLAGS=@CXXFLAGS@ -ggdb
+    CXXFLAGS="-ggdb ${CXXFLAGS}"
 fi
 
 # Switch to C++ mode and check for needed C++ headers

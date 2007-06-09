@@ -21,7 +21,7 @@ Copyright 2006 Bartek Kostrzewa
 /* 	Class for configuration managment */
 
 // autotools config.h
-#include "config.h"
+#include "../config.h"
 #include "defines.h"
 
 #include "CConfig.h"

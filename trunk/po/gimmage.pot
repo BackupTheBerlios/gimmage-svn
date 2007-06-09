@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Bartek Kostrzewa
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: bartek __ NOSPAM __ AT __ runbox __ DOT __ com\n"
-"POT-Creation-Date: 2007-06-07 22:19+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-06-09 12:18+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,154 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/main.cpp:78
+#: AppWindow.cpp:44
+msgid "Save Image?"
+msgstr ""
+
+#: AppWindow.cpp:45
+msgid "Saving failed."
+msgstr ""
+
+#: AppWindow.cpp:98
+msgid "Previous Image (Backspace)"
+msgstr ""
+
+#: AppWindow.cpp:99
+msgid "Next Image (Space)"
+msgstr ""
+
+#: AppWindow.cpp:100
+msgid "Zoom In (+)"
+msgstr ""
+
+#: AppWindow.cpp:101
+msgid "Zoom Out (-)"
+msgstr ""
+
+#: AppWindow.cpp:102
+msgid "Zoom to Original Size (1)"
+msgstr ""
+
+#: AppWindow.cpp:103
+msgid "Rotate 90 Degrees Anticlockwise (a)"
+msgstr ""
+
+#: AppWindow.cpp:104
+msgid "Rotate 90 Degrees Clockwise (c)"
+msgstr ""
+
+#: AppWindow.cpp:105
+msgid "Save Modified Image (s)"
+msgstr ""
+
+#: AppWindow.cpp:106
+msgid "Display Print Dialog (p)"
+msgstr ""
+
+#: AppWindow.cpp:107
+msgid "Show File Browser (f)"
+msgstr ""
+
+#: AppWindow.cpp:108
+msgid "Quit. (Escape)"
+msgstr ""
+
+#: AppWindow.cpp:142
+msgid "Image Formats"
+msgstr ""
+
+#: AppWindow.cpp:869
+msgid "LOAD_CONFIG: Failed to find home directory"
+msgstr ""
+
+#: AppWindow.cpp:876
+msgid ""
+"LOAD_CONFIG: Failed to open config file! (~/.gimmagerc)\n"
+"Will create on exit."
+msgstr ""
+
+#: AppWindow.cpp:928
+msgid "SAVE_CONFIG: Saving config file to $HOME/.gimmagerc\n"
+msgstr ""
+
+#: AppWindow.cpp:937
+msgid "SAVE_CONFIG: Failed to find home directory"
+msgstr ""
+
+#: AppWindow.cpp:943
+msgid "SAVE_CONFIG: Failed to write config file."
+msgstr ""
+
+#: FileManager.cpp:44
+msgid "FILEMANAGER: ERROR during magic open"
+msgstr ""
+
+#: FileManager.cpp:46
+msgid "FILEMANAGER: ERROR during magic load"
+msgstr ""
+
+#: FileManager.cpp:93
+msgid "OPENFILES: Stat Error! Level 1 "
+msgstr ""
+
+#: FileManager.cpp:126
+msgid "OPENFILES: Stat Error! Level 2 "
+msgstr ""
+
+#: FileManager.cpp:266 FileManager.cpp:274 FileManager.cpp:346
+#: FileManager.cpp:389 ImageEventBox.cpp:67 ImageEventBox.cpp:82
+#: ImageEventBox.cpp:113 ImageEventBox.cpp:128
+msgid "No file to load."
+msgstr ""
+
+#: FileManager.cpp:440
+msgid "FILTER_FILENAME: The file type could not be determined: "
+msgstr ""
+
+#: FileManager.cpp:490
+msgid "FILTER_SAVE_FILENAME: The file type could not be determined: "
+msgstr ""
+
+#: ImageEventBox.cpp:69 ImageEventBox.cpp:115
+msgid ""
+"LOADIMAGE: There has been an error allocating memory or understanding the "
+"image format. \n"
+"\t"
+msgstr ""
+
+#: ImageEventBox.cpp:84 ImageEventBox.cpp:130
+msgid ""
+"LOADIMAGE: There has been an error loading the file. \n"
+"\t"
+msgstr ""
+
+#: ImageEventBox.cpp:160
+msgid ""
+"SCALEIMAGE(sclf): There has been a problem scaling the image. We've probably "
+"run out of memory.\n"
+msgstr ""
+
+#: ImageEventBox.cpp:262
+msgid ""
+"ROTATEIMAGE: There's been an error rotating the image. We've probably run "
+"out of memory.\n"
+msgstr ""
+
+#: main.cpp:79
 msgid "Gimmage pixmaps could not be found! This will cause a segfault.\n"
+msgstr ""
+
+#: SaveDialog.cpp:37
+msgid ""
+"If you save the current file will be overwritten which can result in quality "
+"losses. Do you still want to save? You can also specify a new filename "
+"below. "
+msgstr ""
+
+#: SaveErrorDialog.cpp:36
+msgid ""
+"Saving failed. Please check whether you have sufficient rights to the file "
+"and possibly try again. The image format might be unsupported for saving or "
+"we may have run out of memory. Currently we can save only JPEG, PNG and BMP."
+"( as limited by gdk-pixbuf )"
 msgstr ""

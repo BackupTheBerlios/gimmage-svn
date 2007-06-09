@@ -108,6 +108,19 @@ and displayed. Single images can also be double-clicked, which will cause
 the directory current directory to be searched for other images and the
 currently selected image to be displayed.
 
+Keyboard shortcuts:
+
+Next Image 		Space
+Previous Image		Backspace
+Zoom In			Plus (Numpad or otherwise)
+Zoom Out		Minus (Numpad or otherwise)
+Zoom to Original Size	1
+Rotate Clockwise	c
+Rotate Anticlockwise	a
+Save			s
+Open Filechooser	f
+Quit			Escape
+
 
 have fun!
 
