@@ -17,28 +17,28 @@ Copyright 2006 Bartek Kostrzewa
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
     USA   */
 
-// gimmage: Config.cpp
-/* 	Class for configuration managment */
+// gimmage: Param.h
+/* 	Parameter template class for the Config class */
 
-// autotools config.h
-#include "../config.h"
-#include "defines.h"
+#include <string>
 
-#include "CConfig.h"
+template < class T >
+class Param
+	{
+	public:
+		Param( std::string );
+		~Param();
+		
+		T get();
+		void set( T );
+		
+		std::string get_name();
+		void set_name(std::string);
 
-CConfig::CConfig()
-	{
-	
-	}
-	
-CConfig::~CConfig()
-	{
-	}
+	private:
+		std:string name;
+		T value;
+	};
 
-CConfig::load()
-	{
-	}
-	
-CConfig::save()
-	{
-	}
+
+

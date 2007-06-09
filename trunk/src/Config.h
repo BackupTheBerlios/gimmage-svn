@@ -20,6 +20,8 @@ Copyright 2006 Bartek Kostrzewa
 // gimmage: Config.h
 /* 	Class for configuration managment */
 
+#include "Param.h"
+
 class CConfig
 {
 public:
@@ -28,7 +30,9 @@ public:
 	
 	save();
 	load();
+	
+	int 
 
 private:
-	
+	std::list<Param> params; // a list holding all our parameters
 };

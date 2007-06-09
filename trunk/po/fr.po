@@ -66,7 +66,7 @@ msgstr "Montrer l'explorateur de fichiers (f)"
 
 #: AppWindow.cpp:108
 msgid "Quit. (Escape)"
-msgstr ""
+msgstr "Sortir. (Échap)"
 
 #: AppWindow.cpp:142
 msgid "Image Formats"
