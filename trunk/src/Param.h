@@ -20,25 +20,32 @@ Copyright 2006 Bartek Kostrzewa
 // gimmage: Param.h
 /* 	Parameter template class for the Config class */
 
+/* GCC is broken in that it does not support template classes that 
+   are defined outside of the header. For this reason, we include 
+   Param.cpp directly into Param.h */
+
 #include <string>
 
 template < class T >
 class Param
 	{
 	public:
-		Param( std::string );
+		Param();
+		Param( std::string _name );
 		~Param();
 		
 		T get();
 		void set( T );
 		
 		std::string get_name();
-		void set_name(std::string);
+		void set_name(std::string _name );
 
 	private:
-		std:string name;
+		std::string name;
 		T value;
 	};
+	
+#include "Param.cpp"	
 
 
 

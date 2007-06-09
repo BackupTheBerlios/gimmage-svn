@@ -24,7 +24,6 @@ Copyright 2006 Bartek Kostrzewa
 #include "../config.h"
 
 extern "C" {
-#include <string.h>
 #include <unistd.h>
 }
 

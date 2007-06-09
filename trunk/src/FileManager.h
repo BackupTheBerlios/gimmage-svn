@@ -21,7 +21,7 @@ Copyright 2006 Bartek Kostrzewa
 
 #include <iostream>
 #include <list>
-#include <string>
+// #include <string>
 #include <glibmm.h>
 
 

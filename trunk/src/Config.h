@@ -20,6 +20,9 @@ Copyright 2006 Bartek Kostrzewa
 // gimmage: Config.h
 /* 	Class for configuration managment */
 
+#include <list>
+#include <string>
+
 #include "Param.h"
 
 class CConfig
@@ -28,11 +31,15 @@ public:
 	CConfig();
 	~CConfig();
 	
-	save();
-	load();
+	void save();
+	void load();
 	
-	int 
+	int Size() { return sizeof(param); }
+	std::string Name() { return param.get_name(); }
 
 private:
-	std::list<Param> params; // a list holding all our parameters
+	Param<int> param;
+	
+	/* damn this doesn't work */
+	std::list< Param > params; // a list holding all our parameters
 };

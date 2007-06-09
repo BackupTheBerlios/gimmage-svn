@@ -24,21 +24,20 @@ Copyright 2006 Bartek Kostrzewa
 #include "../config.h"
 #include "defines.h"
 
-#include "CConfig.h"
+#include "Config.h"
 
 CConfig::CConfig()
 	{
-	
 	}
 	
 CConfig::~CConfig()
 	{
 	}
 
-CConfig::load()
+void CConfig::load()
 	{
 	}
 	
-CConfig::save()
+void CConfig::save()
 	{
 	}
