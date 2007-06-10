@@ -398,7 +398,7 @@ void AppWindow::open_new_file( Glib::ustring string_filename )
 						ImageScroller.get_height()-4);
 
     // finally, set the filechooser to the right dirname
-    set_filechooser_dir();
+    if( FileChooser.is_visible() ) set_filechooser_dir();
     // activate the buttons
     set_buttons_active( ImageBox.is_loaded() );
 	busy(false);
@@ -459,7 +459,7 @@ void AppWindow::on_button_next(void)
 	set_title( "gimmage: " + ImageManager.get_current_file() );
 	set_buttons_active( ImageBox.is_loaded() );
 
-	set_filechooser_dir();
+	if( FileChooser.is_visible() ) set_filechooser_dir();
 
 	// flush the queue so that the image is displayed
 	// even if the user presses and holds the space bar
@@ -480,7 +480,7 @@ void AppWindow::on_button_previous(void)
 	set_title( "gimmage: " + ImageManager.get_current_file() );
 	set_buttons_active( ImageBox.is_loaded() );
 
-	set_filechooser_dir();
+	if( FileChooser.is_visible() ) set_filechooser_dir();
 	
 	// flush the queue so that the image is displayed
 	// even if the user presses and holds the backspace key
@@ -663,8 +663,9 @@ void AppWindow::on_button_show_filechooser(void)
 #endif //DEBUG	*/
 		
 	FileChooser.is_visible() ? FileChooser.hide() : FileChooser.show();
+	
 	while(Gtk::Main::events_pending()) Gtk::Main::iteration();
-	set_filechooser_dir();
+	if( FileChooser.is_visible() ) set_filechooser_dir();
 	
 	ImageBox.ScaleImage2(ImageScroller.get_width()-4,ImageScroller.get_height()-4,&scalefactor);
 	}

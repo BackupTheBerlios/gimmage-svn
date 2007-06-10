@@ -22,7 +22,7 @@ Copyright 2006 Bartek Kostrzewa
 
 /* GCC is broken in that it does not support template classes that 
    are defined outside of the header. For this reason, we include 
-   Param.cpp directly into Param.h */
+   Param.cpp directly into Param.h at the bottom */
 
 #include <string>
 
