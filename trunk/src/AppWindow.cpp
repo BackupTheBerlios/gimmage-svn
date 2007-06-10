@@ -272,8 +272,9 @@ bool AppWindow::on_button1_pressed_motion(GdkEventMotion *event)
 	if ( ImageBox.is_loaded() )
 		{
 		int x,y;
-#ifdef DEBUG
 		ImageScroller.get_pointer(x, y);
+		
+#ifdef DEBUG
 		std::cout << "Y = \t" << event->y << '\t';
 		std::cout << "Oldy = \t" << dragoldy << std::endl;
 		std::cout << "Pointer x = " << x << std::endl;
@@ -284,10 +285,9 @@ bool AppWindow::on_button1_pressed_motion(GdkEventMotion *event)
 		// the values are pulled out of my behind, but they seem to work
 		int extrawidth = ( ImageScroller.get_vscrollbar_visible() ) ? 23 : 4;
 		int extraheight = ( ImageScroller.get_hscrollbar_visible() ) ? 23 : 4;
-
+		
 		if(ImageScroller.get_width() < ImageBox.get_image_width())
 			{
-			ImageScroller.get_pointer(x, y);
 			if( (h_scroller->get_value() - (x - dragoldx)) >= 0  &&
 			    (h_scroller->get_value() - (x - dragoldx)) <=
 				( ImageBox.get_image_width() - ImageScroller.get_width() + extrawidth ) )
@@ -639,9 +639,6 @@ void AppWindow::on_button_show_filechooser(void)
 	{
 	//static int previous_filechooser_height = 220; // we want to keep the value around and 220 is a good default for 3 lines
 	
-	
-	FileChooser.set_filter(ImageFilter);
-	
 /* #ifdef DEBUG
 	std::cout << "APPWINDOW: on_button_show_filechooser height before: " << FileChooser.get_height() << std::endl;
 	std::cout << "APPWINDOW: on_button_show_filechooser previous before: " << previous_filechooser_height  << std::endl;
@@ -655,17 +652,22 @@ void AppWindow::on_button_show_filechooser(void)
 	else
 		FileChooser.set_size_request( FileChooser.get_width(), previous_filechooser_height );
 	
-	
-	
 #ifdef DEBUG
 	std::cout << "APPWINDOW: on_button_show_filechooser height after: " << FileChooser.get_height() << std::endl;
 	std::cout << "APPWINDOW: on_button_show_filechooser previous after: " << previous_filechooser_height  << std::endl;
 #endif //DEBUG	*/
+
+
+
 		
 	FileChooser.is_visible() ? FileChooser.hide() : FileChooser.show();
 	
 	while(Gtk::Main::events_pending()) Gtk::Main::iteration();
-	if( FileChooser.is_visible() ) set_filechooser_dir();
+	if( FileChooser.is_visible() ) 
+		{ 
+		FileChooser.set_filter(ImageFilter);
+		set_filechooser_dir();
+		}
 	
 	ImageBox.ScaleImage2(ImageScroller.get_width()-4,ImageScroller.get_height()-4,&scalefactor);
 	}
