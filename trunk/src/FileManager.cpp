@@ -24,7 +24,9 @@ Copyright 2006 Bartek Kostrzewa
 #include "../config.h"
 
 extern "C" {
-#include <unistd.h>
+#include <libintl.h>
+// #include <unistd.h>
+#include <sys/stat.h>
 }
 
 FileManager::FileManager() {}

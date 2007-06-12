@@ -24,6 +24,10 @@ Copyright 2006 Bartek Kostrzewa
 
 #include "../config.h"
 
+extern "C" {
+#include <libintl.h>
+}
+
 ImageEventBox::ImageEventBox() :
 	EventBox(),
 	Image()
