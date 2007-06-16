@@ -1,4 +1,3 @@
-# SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
@@ -38,7 +37,7 @@ msgstr "Agrandir (+)"
 
 #: AppWindow.cpp:101
 msgid "Zoom Out (-)"
-msgstr "Reduire (-)"
+msgstr "Réduire (-)"
 
 #: AppWindow.cpp:102
 msgid "Zoom to Original Size (1)"
@@ -82,7 +81,7 @@ msgid ""
 "Will create on exit."
 msgstr ""
 "LOAD_CONFIG: Non-réussite d'ouverture du fichier de configuration!\n"
-"(~/.gimmagerc) Il sera crée à la fin programme."
+"(~/.gimmagerc) Il sera crée à la termination du programme."
 
 #: AppWindow.cpp:928
 msgid "SAVE_CONFIG: Saving config file to $HOME/.gimmagerc\n"
@@ -185,7 +184,7 @@ msgid ""
 "( as limited by gdk-pixbuf )"
 msgstr ""
 "Sauvegarde non-réussite. Veuilliez contrôler si vous possèdez des droits "
-"au fichier suffisants et essayer encore une fois. Peut-être le format "
+"au fichier suffisants et essayez encore une fois. Peut-être le format "
 "d'image n'est pas supporté pour la sauvegarde ou bien il s'est produit un "
 "manque de mémoire. Momentanément les formats supportés pour la sauvegarde "
 "sont: JPEG, PNG et BMP (limité par gdk-pixbuf)"

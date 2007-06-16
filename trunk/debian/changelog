@@ -1,3 +1,10 @@
+gimmage (0.2.2-1) unstable; urgency=low
+
+        * New upstream release
+
+ -- Bartosz Kostrzewa <zoombat |AT| runbox |DOT| com>  Sat, 16 Jun 2007 17:46:46 +0100
+
+
 gimmage (0.2.1-1) unstable; urgency=low
 
         * Fix configuration file managment.

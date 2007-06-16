@@ -1,3 +1,8 @@
+16.06.17 - 0.2.2
+-Minor rewrites of some sections
+-Correct placement of "gimmage.desktop" file
+-gimmage.desktop file now includes mimetypes
+
 08.06.07 - 0.2.1
 -Fix configuration file managment.
 
