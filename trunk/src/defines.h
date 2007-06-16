@@ -5,3 +5,4 @@
 
 // interpolation type, will later be read from config
 #define INTERPTYPE Gdk::INTERP_BILINEAR
+

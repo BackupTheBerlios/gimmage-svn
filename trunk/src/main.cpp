@@ -91,8 +91,10 @@ int main(int argc, char *argv[])
 
 	setlocale (LC_CTYPE, "");
 	setlocale (LC_MESSAGES, "");
+	setlocale (LC_ALL, "");
   	bindtextdomain (PACKAGE, LOCALEDIR);
-  	textdomain (PACKAGE);
+  	bind_textdomain_codeset(PACKAGE, "UTF-8");
+  	textdomain(PACKAGE);
 
 	// depending on where we are, we must try to locate our pixmaps! I know this won't
 	// work very well if the executable is not the path of the user
@@ -104,6 +106,10 @@ int main(int argc, char *argv[])
 #ifdef DEBUG
 	std::cout << "Icons in: " << iconpath << std::endl;
 #endif // DEBUG
+
+	Glib::init();
+	Glib::set_prgname("gimmage");
+	Glib::set_application_name("Image Viewer");
 
 	Gtk::Main kit(argc,argv);
 

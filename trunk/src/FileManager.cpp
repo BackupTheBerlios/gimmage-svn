@@ -33,6 +33,12 @@ FileManager::FileManager() {}
 
 FileManager::FileManager(int argc, char **argv)
 	{
+	setlocale (LC_CTYPE, "");
+	setlocale (LC_MESSAGES, "");
+	setlocale (LC_ALL, "");
+	bindtextdomain (PACKAGE, LOCALEDIR);
+	textdomain (PACKAGE);	
+	
 	// we have not initialised yet
 	initialised = false;
 	// no operations carried out yet

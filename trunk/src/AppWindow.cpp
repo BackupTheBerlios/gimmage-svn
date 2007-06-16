@@ -59,6 +59,13 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	I_Button_Quit(Gtk::StockID("gtk-quit"), Gtk::IconSize(1))
 	{
 
+	setlocale (LC_CTYPE, "");
+	setlocale (LC_MESSAGES, "");
+	setlocale (LC_ALL, "");
+	bindtextdomain (PACKAGE, LOCALEDIR);
+	bind_textdomain_codeset(PACKAGE, "UTF-8");
+	textdomain(PACKAGE);
+
 	// copy command line
 	argc = argnum;
 	argv = argcon;
@@ -455,16 +462,15 @@ void AppWindow::on_button_next(void)
 						&scalefactor,
 						ImageScroller.get_width()-4, 
 						ImageScroller.get_height()-4);
-						
 
 	set_title( "gimmage: " + ImageManager.get_current_file() );
 	set_buttons_active( ImageBox.is_loaded() );
 
 	if( FileChooser.is_visible() ) set_filechooser_dir();
-
+	
 	// flush the queue so that the image is displayed
 	// even if the user presses and holds the space bar
-	get_display()->flush();
+	get_display()->flush();		
 	} 
 	
 void AppWindow::on_button_previous(void)

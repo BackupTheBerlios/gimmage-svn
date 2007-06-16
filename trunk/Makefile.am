@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = gnu
 SUBDIRS = src po pixmaps
 
 # Desktop entry
-desktopdir		= $(datadir)/gnome/apps/Graphics
+desktopdir		= $(datadir)/applications
 desktop_in_files	= gimmage.desktop.in
 desktop_DATA 		= $(desktop_in_files:.desktop.in=.desktop)
 
