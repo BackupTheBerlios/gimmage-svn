@@ -415,6 +415,8 @@ bool FileManager::filter_filename(Glib::ustring filename)
 		filename.find(".PNG") != Glib::ustring::npos ||
 		filename.find(".bmp") != Glib::ustring::npos ||
 		filename.find(".BMP") != Glib::ustring::npos ||
+		filename.find(".xpm") != Glib::ustring::npos ||
+		filename.find(".XPM") != Glib::ustring::npos ||
 		filename.find(".pcx") != Glib::ustring::npos ||
 		filename.find(".PCX") != Glib::ustring::npos ||
 		filename.find(".pgm") != Glib::ustring::npos ||
@@ -452,10 +454,10 @@ bool FileManager::filter_filename(Glib::ustring filename)
 	if( result.find("JPEG") != Glib::ustring::npos 	||
 		result.find("GIF") != Glib::ustring::npos	||
 		result.find("PNG") != Glib::ustring::npos	||
-	    result.find("PC bitmap") != Glib::ustring::npos ||
-	    result.find("PCX") != Glib::ustring::npos ||
-	    result.find("PGM") != Glib::ustring::npos	||
-	    result.find("PPM") != Glib::ustring::npos	||
+		result.find("PC bitmap") != Glib::ustring::npos ||
+		result.find("PCX") != Glib::ustring::npos ||
+		result.find("PGM") != Glib::ustring::npos	||
+		result.find("PPM") != Glib::ustring::npos	||
 		result.find("TIFF") != Glib::ustring::npos && result.find("EPS") == Glib::ustring::npos	||
 		result.find("X pixmap image text") != Glib::ustring::npos	||
 		result.find("Targa") != Glib::ustring::npos	||
