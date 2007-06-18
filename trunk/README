@@ -39,8 +39,12 @@ REQUIREMENTS
 ------------
  	
 	gtkmm and its dependencies
-	curl / libcurl (http://curl.haxx.se - most probably included with your distribution)
+	
+	curl / libcurl (http://curl.haxx.se - most probably included 
+	with your distribution)
+	
 	libmagic and its dependencies
+	
 	gettext / libintl
 	
 	of course you will need the *-dev packages for compiling!
