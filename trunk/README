@@ -101,7 +101,7 @@ working directory and all subdirectories to one level and try to display
 all files therein (if they appear to be supported images)
 
 starting gimmage with a directory as its argument will make it enter the
-directory and scan it for diplayable images
+directory and scan it for displayable images
 
 in your filemanager you can configure gimmage to be an application with
 which to open image files and/or directories
@@ -126,6 +126,6 @@ Open Filechooser	f
 Quit			Escape
 
 
-have fun!
+Thanks for trying gimmage.
 
 -Bartek
