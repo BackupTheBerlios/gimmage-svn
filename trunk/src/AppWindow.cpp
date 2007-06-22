@@ -232,8 +232,6 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 		v_scroller->set_upper( ImageBox.get_image_height() - ImageScroller.get_height() );
 		}
 
-	// finally, set the filechooser to the right pathname
-	set_filechooser_dir();
 	set_buttons_active( ImageBox.is_loaded() );
 
 	}
@@ -406,7 +404,8 @@ void AppWindow::open_new_file( Glib::ustring string_filename )
 						ImageScroller.get_height()-4);
 
     // finally, set the filechooser to the right dirname
-    if( FileChooser.is_visible() ) set_filechooser_dir();
+    if( FileChooser.is_visible() )
+    	set_filechooser_dir();
 
     // activate the buttons
     set_buttons_active( ImageBox.is_loaded() );
@@ -439,7 +438,7 @@ void AppWindow::set_filechooser_dir(void)
 #endif
     	    
 			FileChooser.set_filename( path );
-			FileChooser.select_filename( path );
+
 		}
 	// if loading failed, set to the user's home dir
 	else if( !ImageBox.is_loaded() )
@@ -468,7 +467,8 @@ void AppWindow::on_button_next(void)
 	set_title( "gimmage: " + ImageManager.get_current_file() );
 	set_buttons_active( ImageBox.is_loaded() );
 
-	if( FileChooser.is_visible() ) set_filechooser_dir();
+	if( FileChooser.is_visible() )
+		set_filechooser_dir();
 	
 	// flush the queue so that the image is displayed
 	// even if the user presses and holds the space bar
@@ -492,7 +492,8 @@ void AppWindow::on_button_previous(void)
 	set_title( "gimmage: " + ImageManager.get_current_file() );
 	set_buttons_active( ImageBox.is_loaded() );
 
-	if( FileChooser.is_visible() ) set_filechooser_dir();
+	if( FileChooser.is_visible() )
+		set_filechooser_dir();
 	
 	// flush the queue so that the image is displayed
 	// even if the user presses and holds the backspace key
@@ -654,32 +655,14 @@ void AppWindow::on_button_print(void)
 */
 void AppWindow::on_button_show_filechooser(void)
 	{
-	//static int previous_filechooser_height = 220; // we want to keep the value around and 220 is a good default for 3 lines
-	
-/* #ifdef DEBUG
-	std::cout << "APPWINDOW: on_button_show_filechooser height before: " << FileChooser.get_height() << std::endl;
-	std::cout << "APPWINDOW: on_button_show_filechooser previous before: " << previous_filechooser_height  << std::endl;
-#endif //DEBUG
-	
-	if( FileChooser.get_height() > 1 ) 
-		{
-		previous_filechooser_height = FileChooser.get_height();
-		FileChooser.set_size_request( FileChooser.get_width(), 1 );
-		}
-	else
-		FileChooser.set_size_request( FileChooser.get_width(), previous_filechooser_height );
-	
-#ifdef DEBUG
-	std::cout << "APPWINDOW: on_button_show_filechooser height after: " << FileChooser.get_height() << std::endl;
-	std::cout << "APPWINDOW: on_button_show_filechooser previous after: " << previous_filechooser_height  << std::endl;
-#endif //DEBUG	*/
 
-
-
-		
 	FileChooser.is_visible() ? FileChooser.hide() : FileChooser.show();
 	
+	// attempt to get the filechooser displayed before altering it's path
+	// doesn't always work which results in the wrong path being
+	// selected in the filechooser if you press f repeatedly quickly
 	while(Gtk::Main::events_pending()) Gtk::Main::iteration();
+	
 	if( FileChooser.is_visible() ) 
 		{ 
 		FileChooser.set_filter(ImageFilter);

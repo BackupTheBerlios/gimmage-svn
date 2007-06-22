@@ -1,3 +1,8 @@
+xx.xx.xx - 0.2.3
+-Prevent save button from becoming sensitive if image format is not
+supported for saving
+
+
 16.06.17 - 0.2.2
 -Minor rewrites of some sections
 -Correct placement of "gimmage.desktop" file
