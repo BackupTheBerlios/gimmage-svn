@@ -407,9 +407,13 @@ void AppWindow::open_new_file( Glib::ustring string_filename )
 
     // finally, set the filechooser to the right dirname
     if( FileChooser.is_visible() ) set_filechooser_dir();
+
     // activate the buttons
     set_buttons_active( ImageBox.is_loaded() );
 	busy(false);
+
+	// since we now have a new image, let's make sure the save button is off!
+	Button_Save.set_sensitive( false );
 }
 
 void AppWindow::on_file_activated(void)
@@ -435,13 +439,11 @@ void AppWindow::set_filechooser_dir(void)
 #endif
     	    
 			FileChooser.set_filename( path );
+			FileChooser.select_filename( path );
 		}
 	// if loading failed, set to the user's home dir
 	else if( !ImageBox.is_loaded() )
    	 	FileChooser.set_current_folder( Glib::get_home_dir() );
-		
-	// since we now have a new image, let's make sure the save button is off!
-	Button_Save.set_sensitive( false );
 	}
 
 // scales an image using the scalefactor only
@@ -470,7 +472,10 @@ void AppWindow::on_button_next(void)
 	
 	// flush the queue so that the image is displayed
 	// even if the user presses and holds the space bar
-	get_display()->flush();		
+	get_display()->flush();
+
+	// since we now have a new image, let's make sure the save button is off!
+	Button_Save.set_sensitive( false );
 	} 
 	
 void AppWindow::on_button_previous(void)
@@ -492,6 +497,9 @@ void AppWindow::on_button_previous(void)
 	// flush the queue so that the image is displayed
 	// even if the user presses and holds the backspace key
 	get_display()->flush();
+
+	// since we now have a new image, let's make sure the save button is off!
+	Button_Save.set_sensitive( false );
 	}
 
 void AppWindow::on_button_zoom_in(void)
@@ -577,7 +585,9 @@ void AppWindow::on_button_rotate_clockwise(void)
 // it will be hidden when the user clicks ok and stay when cancel is clicked
 void AppWindow::adjust_adjustment_on_rotate(int angle, double h_old, double v_old)
 	{
-	Button_Save.set_sensitive(true);
+	if( ImageManager.filter_save_filename( ImageManager.get_current_file() ) != "unsupported" )
+		Button_Save.set_sensitive(true);
+		
 	if		( angle == 90 )
 		{
 		v_scroller->set_value( h_old );
