@@ -1,3 +1,11 @@
+gimmage (0.2.3-1) unstable; urgency=low
+
+  * Fixes filechooser selection bug
+  * Make save button sensitive only if the image format is supported for
+    saving
+
+ -- Bartosz Kostrzewa <zoombat |AT| runbox |DOT| com> 
+
 gimmage (0.2.2-1) unstable; urgency=low
 
         * New upstream release

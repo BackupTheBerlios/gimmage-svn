@@ -662,14 +662,14 @@ void AppWindow::on_button_show_filechooser(void)
 	// doesn't always work which results in the wrong path being
 	// selected in the filechooser if you press f repeatedly quickly
 	while(Gtk::Main::events_pending()) Gtk::Main::iteration();
+	ImageBox.ScaleImage2(ImageScroller.get_width()-4,ImageScroller.get_height()-4,&scalefactor);
+	while(Gtk::Main::events_pending()) Gtk::Main::iteration();
 	
 	if( FileChooser.is_visible() ) 
 		{ 
 		FileChooser.set_filter(ImageFilter);
 		set_filechooser_dir();
 		}
-	
-	ImageBox.ScaleImage2(ImageScroller.get_width()-4,ImageScroller.get_height()-4,&scalefactor);
 	}
 
 

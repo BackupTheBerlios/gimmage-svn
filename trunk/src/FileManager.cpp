@@ -18,6 +18,9 @@ Copyright 2006 Bartek Kostrzewa
     USA   */
 
 // gimmage: FileManager.cpp
+
+// we make extensive use of get_current_dir_name() from Glib
+
 #include "FileManager.h"
 #include "defines.h"
 
@@ -101,31 +104,44 @@ bool FileManager::OpenFiles(int argc, char **argv)
 				}
 			else
 				{
-				if(filemode.st_mode & S_IFREG )  // if the file is a regular file
-				 {
-				 if( filter_filename(argv[i]) ) // and seems to be a supported format
+				Glib::ustring filename;
+				
+				// Resolve any ".." in the filename and make the filename absolute
+				if( Glib::path_is_absolute( argv[i] ) )
+					filename = argv[i] ;
+				else
+					filename = (Glib::ustring)get_current_dir_name() + "/" + (Glib::ustring)argv[i];
+				
+				while( filename.find("..") != Glib::ustring::npos )
 					{
-					#ifdef DEBUG
-					std::cout << "FILEMANAGER: curent argv: " << argv[i] << std::endl;
-					std::cout << "FILEMANAGER: dirname from argv: " << Glib::path_get_dirname( argv[i] ) << std::endl;
-					std::cout << "FILEMANAGER: curent dir: " << get_current_dir_name() << std::endl;
-					#endif
-					if( Glib::path_is_absolute( argv[i] ) )
-					    filenames.insert( filenames.end(), argv[i] ); // insert into list
-					else
-					    filenames.insert( filenames.end(), (Glib::ustring)get_current_dir_name() + "/" + (Glib::ustring)argv[i] );
-					numfiles++;
+					filename.erase( 
+						filename.rfind( '/', filename.find("..")-2), 
+						filename.find("..")+2 - filename.rfind( '/', filename.find("..")-2) );
 					}
-				 }
+					
+				if(filemode.st_mode & S_IFREG )  // if the file is a regular file
+					{
+					if( filter_filename(filename) ) // and seems to be a supported format
+						{
+						#ifdef DEBUG
+						std::cout << "FILEMANAGER: curent argv: " << filename << std::endl;
+						std::cout << "FILEMANAGER: dirname from argv: " << Glib::path_get_dirname( filename ) << std::endl;
+						std::cout << "FILEMANAGER: curent dir: " << get_current_dir_name() << std::endl;
+						#endif
+						  
+						filenames.insert( filenames.end(), filename ); // insert into list
+						numfiles++;
+						}
+					}
 				else if(filemode.st_mode & S_IFDIR) 			// if the file is a directory
 					{
-					if((currdir = opendir(argv[i])) != NULL) 	// open it
+					if((currdir = opendir(filename.c_str())) != NULL) 	// open it
 						{
 						while( (dirinfo = readdir(currdir)) != NULL ) // run through it
 							{
 							// don't forget, we're doing some string to char* conversions here 
 							// here to avoid memory errors.. Glib::ustring is nice!
-							Glib::ustring currfile(argv[i]); 				// store the directory name
+							Glib::ustring currfile(filename); 				// store the directory name
 							currfile += '/'; 							// add a directory dash
 							currfile += dirinfo->d_name; 				// add the filename
 							if(stat(currfile.c_str(), &filemode) != 0)  // check for filetype
@@ -136,10 +152,7 @@ bool FileManager::OpenFiles(int argc, char **argv)
 								{
 								if( filemode.st_mode & S_IFREG && filter_filename(currfile) ) // as above
 									{
-									if( Glib::path_is_absolute( currfile ) )
-					                    filenames.insert( filenames.end(), currfile ); // insert into list
-					                else
-									    filenames.insert( filenames.end(), (Glib::ustring)get_current_dir_name() + "/" + (Glib::ustring)currfile );
+					                filenames.insert( filenames.end(), currfile ); // insert into list
 									numfiles++;
 									}
 								}
@@ -169,7 +182,7 @@ bool FileManager::OpenFiles(int argc, char **argv)
 			char *arguments[] = { "empty" , dirname };
 
 			// we erase the list of filenames as otherwise we would have one file twice
-			filenames.erase(filenames.begin(),filenames.end());
+			filenames.clear();
 			numfiles = 0;
 
 			// now let's open the file's directory and check its contents

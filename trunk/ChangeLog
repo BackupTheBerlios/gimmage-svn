@@ -1,9 +1,9 @@
-xx.xx.xx - 0.2.3
--Prevent save button from becoming sensitive if image format is not
-supported for saving
+22.06.07 - 0.2.3
+-Make save button sensitive only if the image format is supported for saving
+-Add resolver for ".." in filenames.
+-Fix Filechooser Selection bug! (kinda)
 
-
-16.06.17 - 0.2.2
+16.06.07 - 0.2.2
 -Minor rewrites of some sections
 -Correct placement of "gimmage.desktop" file
 -gimmage.desktop file now includes mimetypes
