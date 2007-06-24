@@ -187,7 +187,7 @@ class AppWindow : public Gtk::Window
 		virtual void on_right_click(void);
 		virtual void on_left_click(void);
 
-		virtual void on_my_configure_event(GdkEventConfigure*);
+		virtual void on_resize(void);
 		
 		virtual bool on_delete_event(GdkEventAny*);
 

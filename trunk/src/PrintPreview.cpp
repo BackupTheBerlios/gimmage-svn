@@ -21,16 +21,35 @@ Copyright 2006 Bartek Kostrzewa
 
 #include "PrintPreview.h"
 
-CPrintPreview::CPrintPreview() :
-	Page(), // */
-	PageContext( Page.get_window()->create_cairo_context() )
+CPrintPreview::CPrintPreview()
 	{
-	//PageContext = Page.get_window()->create_cairo_context();
-	//PageContext->set_source_rgb(1.0,1.0,1.0);
-	//PageContext->set_line_width(1.0);
+	}
 	
-	add(Page);
-	show_all_children();
+bool CPrintPreview::on_expose_event(GdkEventExpose *event)
+	{
+	Glib::RefPtr<Gdk::Window> window = get_window();
+	if(window)
+		{
+		// get the cairo context amd allocation
+		Cairo::RefPtr<Cairo::Context> cr = window->create_cairo_context();
+		Gtk::Allocation allocation = get_allocation();
+		const int width = allocation.get_width();
+		const int height = allocation.get_height();
+		
+		// coordinates for the center of the window
+		int xc, yc;
+		xc = width / 2;
+		yc = height / 2;
+
+		
+		// clip to the area indicated by the expose event so that we only redraw
+		// the portion of the window that needs to be redrawn
+		cr->rectangle(event->area.x, event->area.y,
+				event->area.width, event->area.height);
+		cr->clip();
+		
+		// draw the page and the image preview
+		}
 	}
 	
 CPrintPreview::~CPrintPreview() {}

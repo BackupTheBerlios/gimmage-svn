@@ -33,6 +33,7 @@ extern "C" {
 // this variable is global... yes it sucks, but it works well, and it's the only one
 // it holds information where AppWindow can find the icons for the custom buttons
 Glib::ustring iconpath;
+Glib::ustring app_icon_path;
 
 
 // looks for the possible path to gimmage's icons
@@ -40,37 +41,52 @@ void find_iconpath( Glib::ustring progname )
 	{
 	struct stat filemode;
 	iconpath = Glib::find_program_in_path( progname );
+	app_icon_path = iconpath;
 
 	if( iconpath != "" && iconpath.find("bin") != std::string::npos )
 		{	
 		iconpath.erase( iconpath.find("bin") );
 		iconpath += "share/gimmage/pixmaps/";
+		app_icon_path += "pixmaps/gimmage.png";
 		}
 
-	if( iconpath == "" ) 
+	if( iconpath == "" )
 		iconpath = "/usr/share/gimmage/pixmaps/"; // try to prevent errors from PATH lacking the executable
-	else
-		return;
 		
-	if( stat( iconpath.c_str(), &filemode) != 0 ) 
+	if( app_icon_path == "" )	
+		app_icon_path = "/usr/share/pixmaps/gimmage.png";
+		
+	if( stat( iconpath.c_str(), &filemode) != 0 )
 		iconpath = "/usr/local/share/gimmage/pixmaps/";
+		
+	if( stat( app_icon_path.c_str(), &filemode) != 0 )
+		app_icon_path = "/usr/local/share/pixmaps/gimmage.png";
 	
 	// last resort to current working directory for pixmaps (when running
 	// gimmage from the extraction directory to try it out for instance
 	if( stat( iconpath.c_str(), &filemode) != 0 ) 
-		iconpath = "../pixmaps/";
+		iconpath = Glib::get_current_dir() + (Glib::ustring)"/pixmaps/";
+	
+	if( stat( app_icon_path.c_str(), &filemode) != 0 ) 
+		app_icon_path = Glib::get_current_dir() + (Glib::ustring)"/pixmaps/icon/gimmage.png";
 		
 	if( stat( iconpath.c_str(), &filemode) != 0 ) 
-		iconpath = "pixmaps/";	
+		iconpath = Glib::get_current_dir() + (Glib::ustring)"/../pixmaps/";
+		
+	if( stat( app_icon_path.c_str(), &filemode) != 0 ) 
+		app_icon_path = Glib::get_current_dir() + (Glib::ustring)"/../pixmaps/icon/gimmage.png";
 
 	#ifdef DEBUG
 	std::cout << "FIND_ICONPATH: " << iconpath << std::endl;
+	std::cout << "APP_ICON_PATH: " << app_icon_path << std::endl;
 	#endif	
 
 	if( stat( iconpath.c_str(), &filemode) != 0 )
 		std::cout << GT("Gimmage pixmaps could not be found! This might cause a segfault.\n");
-		
-		
+
+	if( stat( app_icon_path.c_str(), &filemode) != 0 )
+		std::cout << GT("Gimmage icon could not be found! This WILL cause a segfault.\n");
+
 	}
 	
 
@@ -102,7 +118,7 @@ int main(int argc, char *argv[])
 	Glib::init();
 	Glib::set_prgname("gimmage");
 	Glib::set_application_name("Image Viewer");
-	
+		
 	// set up command line help
 	Glib::OptionContext options( "[dirname] ... [filename]"
 				"\n\n  gimmage will scan directories given up to one level deep\n"
@@ -113,6 +129,8 @@ int main(int argc, char *argv[])
 	Gtk::Main kit(argc,argv,options);
 
 	AppWindow gimmage(argc, argv);
+	gimmage.set_icon_from_file( app_icon_path );	
+	
 	Gtk::Main::run(gimmage);
 
 	return 0;

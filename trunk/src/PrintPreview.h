@@ -23,13 +23,13 @@ Copyright 2006 Bartek Kostrzewa
 #include <gtkmm/bin.h>
 #include <cairomm/cairomm.h>
 
-class CPrintPreview : public Gtk::Bin
+class CPrintPreview : public Gtk::DrawingArea
 {
 public:
 	CPrintPreview();
 	~CPrintPreview();
 	
-	Gtk::DrawingArea Page;
-	Cairo::RefPtr<Cairo::Context> PageContext;
+protected:
+	virtual bool on_expose_event(GdkEventExpose*);
 private:	
 };

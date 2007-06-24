@@ -187,10 +187,11 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	Button_Quit.signal_clicked().connect(sigc::mem_fun(*this, &AppWindow::on_button_quit) );
 	signal_delete_event().connect(sigc::mem_fun(*this, &AppWindow::on_delete_event) );
 	
-	//signal_configure_event().connect_notify(sigc::mem_fun(*this,&AppWindow::on_my_configure_event));
+	// this is also triggered when the image is resized, unforunately (evenbox)
+	//signal_check_resize().connect(sigc::mem_fun(*this,&AppWindow::on_resize));
 
 	// let's catch keystrokes
-	signal_key_press_event().connect(sigc::mem_fun(*this,&AppWindow::on_key_press_event) );
+	ImageBox.signal_key_press_event().connect(sigc::mem_fun(*this,&AppWindow::on_key_press_event) );
 	
 	// show the window in all its glory
 	show_all_children();
@@ -214,8 +215,8 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	// clamp the scrollbar adjustments
 	if( ImageBox.is_loaded() )
 		{
-		v_scroller->set_upper( ImageBox.get_height() - ImageScroller.get_height() );
-		h_scroller->set_upper( ImageBox.get_width() - ImageScroller.get_width() );
+		v_scroller->set_upper( ImageBox.get_height() - v_scroller->get_page_size() );
+		h_scroller->set_upper( ImageBox.get_width() - h_scroller->get_page_size() );
 		}
 
 	// load the first image
@@ -280,28 +281,22 @@ bool AppWindow::on_button1_pressed_motion(GdkEventMotion *event)
 		std::cout << "Pointer y = " << y << std::endl;
 #endif // DEBUG
 
-		// when the scrollbars are visible we need to scroll further!
-		// the additional bit is pulled out of my ass (6 and 4), but it seems to work
-		
-		int extraheight = ImageScroller.get_hscrollbar_visible() ? ImageScroller.get_hscrollbar_height() + 6 : 4;
-		int extrawidth = ImageScroller.get_vscrollbar_visible() ? ImageScroller.get_vscrollbar_width() + 6 : 4;
-		
-		if(ImageScroller.get_width() < ImageBox.get_image_width())
+		if(h_scroller->get_page_size() < ImageBox.get_image_width())
 			{
 			if( (h_scroller->get_value() - (x - dragoldx)) >= 0  &&
 			    (h_scroller->get_value() - (x - dragoldx)) <=
-				( ImageBox.get_image_width() - ImageScroller.get_width() + extrawidth ) )
+				( ImageBox.get_image_width() - h_scroller->get_page_size() ) )
 				{
 				h_scroller->set_value(h_scroller->get_value() - (x - dragoldx));
 				dragoldx = x;
 				}				
 			}
 
-		if(ImageScroller.get_height() < ImageBox.get_image_height())
+		if(v_scroller->get_page_size() < ImageBox.get_image_height())
 			{
 			if( (v_scroller->get_value() - (y-dragoldy)) >= 0  &&
 				(v_scroller->get_value() - (y-dragoldy)) <=
-				(ImageBox.get_image_height() - 	ImageScroller.get_height() + extraheight ))
+				(ImageBox.get_image_height() - 	v_scroller->get_page_size() ))
 				{
 				v_scroller->set_value(v_scroller->get_value() - (y-dragoldy));
 				dragoldy = y;
@@ -397,8 +392,8 @@ void AppWindow::open_new_file( Glib::ustring string_filename )
 	set_title( "gimmage: " + ImageManager.get_current_file() );
 	ImageBox.LoadImage(	ImageManager.get_current_file(),
 						&scalefactor, 
-						ImageScroller.get_width()-4,
-						ImageScroller.get_height()-4);
+						(int)h_scroller->get_page_size(),
+						(int)v_scroller->get_page_size());
 
     // finally, set the filechooser to the right dirname
     if( FileChooser.is_visible() )
@@ -456,10 +451,11 @@ void AppWindow::on_button_next(void)
 	#ifdef DEBUG
 	std::cout << "ON_BUTTON_NEXT: Next file \n";
 	#endif
+	busy(true);
 	ImageBox.LoadImage(	ImageManager.get_next_file(), 
 						&scalefactor,
-						ImageScroller.get_width()-4, 
-						ImageScroller.get_height()-4);
+						(int)h_scroller->get_page_size(), 
+						(int)v_scroller->get_page_size());
 
 	set_title( "gimmage: " + ImageManager.get_current_file() );
 	set_buttons_active( ImageBox.is_loaded() );
@@ -473,6 +469,7 @@ void AppWindow::on_button_next(void)
 
 	// since we now have a new image, let's make sure the save button is off!
 	Button_Save.set_sensitive( false );
+	busy(false);
 	} 
 	
 void AppWindow::on_button_previous(void)
@@ -480,10 +477,11 @@ void AppWindow::on_button_previous(void)
 	#ifdef DEBUG
 	std::cout << "ON_BUTTON_PREVIOUS: Previous file \n";
 	#endif
+	busy(true);
 	ImageBox.LoadImage(	ImageManager.get_previous_file(),
 						&scalefactor,
-						ImageScroller.get_width()-4, 
-						ImageScroller.get_height()-4);
+						(int)h_scroller->get_page_size(), 
+						(int)v_scroller->get_page_size());
 						
 	
 	set_title( "gimmage: " + ImageManager.get_current_file() );
@@ -498,6 +496,7 @@ void AppWindow::on_button_previous(void)
 
 	// since we now have a new image, let's make sure the save button is off!
 	Button_Save.set_sensitive( false );
+	busy(false);
 	}
 
 void AppWindow::on_button_zoom_in(void)
@@ -505,11 +504,12 @@ void AppWindow::on_button_zoom_in(void)
 	double oldscale = scalefactor;
 	if(scalefactor < 3.0 && ImageBox.is_loaded())
 		{
+		busy(true);
 		(scalefactor > 0.2) ?	scalefactor += scalefactor*0.2 : scalefactor *= 1.5;
 		ImageBox.ScaleImage(scalefactor,INTERPTYPE);
 		adjust_adjustment_on_zoom(oldscale);
+		busy(false);
 		}
-	return;
 	}
 
 void AppWindow::on_button_zoom_out(void)
@@ -517,9 +517,11 @@ void AppWindow::on_button_zoom_out(void)
 	double oldscale = scalefactor;
 	if(scalefactor > 0.05 && ImageBox.is_loaded())
 		{
+		busy(true);
 		(scalefactor > 0.2) ? scalefactor -= scalefactor*0.2 : scalefactor *= 0.667;
 		ImageBox.ScaleImage(scalefactor,INTERPTYPE);
 		adjust_adjustment_on_zoom(oldscale);
+		busy(false);
 		}
 	}
 
@@ -529,9 +531,11 @@ void AppWindow::on_button_zoom_1to1(void)
 	double oldscale = scalefactor;
 	if(scalefactor != 1.0 && ImageBox.is_loaded())
 		{
+		busy(true);
 		scalefactor = 1.0;
 		ImageBox.ScaleImage(scalefactor,INTERPTYPE);
 		adjust_adjustment_on_zoom(oldscale);
+		busy(false);
 		}
 	}
 
@@ -540,16 +544,16 @@ void AppWindow::adjust_adjustment_on_zoom(double oldscale)
 	// clamp the scrollbar adjustments
 	if( ImageBox.is_loaded() )
 		{
-		v_scroller->set_upper( ImageBox.get_height() - ImageScroller.get_height() );
-		h_scroller->set_upper( ImageBox.get_width() - ImageScroller.get_width() );
+		v_scroller->set_upper( ImageBox.get_height() - v_scroller->get_page_size() );
+		h_scroller->set_upper( ImageBox.get_width() - h_scroller->get_page_size() );
 		}	
 	
 	double ratio = scalefactor / oldscale;
 	// adjust the scrollbar to keep the image centered
-		h_scroller->set_value( ( ratio-1.0 ) * ImageScroller.get_width()/2.0 +
+		h_scroller->set_value( ( ratio-1.0 ) * h_scroller->get_page_size()/2.0 +
 								h_scroller->get_value()*ratio );
 
-		v_scroller->set_value( ( ratio-1.0 ) * ImageScroller.get_height()/2.0 +
+		v_scroller->set_value( ( ratio-1.0 ) * v_scroller->get_page_size()/2.0 +
 									v_scroller->get_value()*ratio );
 	}
 
@@ -593,14 +597,14 @@ void AppWindow::adjust_adjustment_on_rotate(int angle, double h_old, double v_ol
 		v_scroller->set_value( h_old );
 		h_scroller->set_value(	ImageBox.get_image_width() -
 								v_old -
-								ImageScroller.get_width() );
+								h_scroller->get_page_size() );
 		}
 	else if ( angle == -90)
 		{
 		h_scroller->set_value( v_old );
 		v_scroller->set_value(	ImageBox.get_image_height() -
 								h_old -
-								ImageScroller.get_height() );
+								v_scroller->get_page_size() );
 		}
 	}
 
@@ -654,14 +658,16 @@ void AppWindow::on_button_print(void)
 */
 void AppWindow::on_button_show_filechooser(void)
 	{
-
 	FileChooser.is_visible() ? FileChooser.hide() : FileChooser.show();
 	
 	// attempt to get the filechooser displayed before altering it's path
 	// doesn't always work which results in the wrong path being
 	// selected in the filechooser if you press f repeatedly quickly
 	while(Gtk::Main::events_pending()) Gtk::Main::iteration();
-	ImageBox.ScaleImage2(ImageScroller.get_width()-4,ImageScroller.get_height()-4,&scalefactor);
+
+	ImageBox.ScaleImage2((int)h_scroller->get_page_size(),
+						(int)v_scroller->get_page_size(),
+						&scalefactor);
 	
 	if( FileChooser.is_visible() ) 
 		{ 
@@ -688,12 +694,6 @@ bool AppWindow::on_delete_event( GdkEventAny *event )
 bool AppWindow::on_key_press_event(GdkEventKey * key)
 	{
 	int increment = 20;
-	
-	// when the scrollbars are visible, the image area is smaller
-	// the additional bit is pulled out of my ass, but it seems to work
-	
-	int extraheight = ImageScroller.get_hscrollbar_height() + 6;
-	int extrawidth = ImageScroller.get_vscrollbar_width() + 6;
 	
 	switch( key->keyval )
 		{
@@ -741,50 +741,50 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			
 		case GDK_Pointer_Left:
 		case GDK_KP_Left:
-		//case GDK_leftarrow:
+		case GDK_leftarrow:
 			#ifdef DEBUG
 			std::cout << "KEY_EVENT: Left was pressed. \n";
 			#endif
 			if( h_scroller->get_value()-increment >= 0 )
 				h_scroller->set_value( h_scroller->get_value()-increment );
-			else // add the few pixels that are missing
+			else // subtract the few pixels that are missing
 				h_scroller->set_value(0);
 			break;
 			
 		case GDK_KP_Right:
-		//case GDK_rightarrow:
+		case GDK_rightarrow:
 			#ifdef DEBUG
 			std::cout << "KEY_EVENT: Right was pressed. \n";
 			#endif
 			if ( (h_scroller->get_value() + increment) <=
-			(ImageBox.get_image_width() - ImageScroller.get_width() + extrawidth ) )
+			(ImageBox.get_image_width() - h_scroller->get_page_size() ) )
 				h_scroller->set_value( h_scroller->get_value()+increment);
 			else // add that extra bit
 				h_scroller->set_value( 	ImageBox.get_image_width() -
-										ImageScroller.get_width() + extrawidth );
+										h_scroller->get_page_size() );
 			break;
 			
 		case GDK_KP_Down:
-		//case GDK_downarrow:
+		case GDK_downarrow:
 			#ifdef DEBUG
 			std::cout << "KEY_EVENT: Down was pressed. \n";
 			#endif
 			if ( (v_scroller->get_value() + increment) <=
-				(ImageBox.get_image_height() - ImageScroller.get_height() + extraheight ) )
-					v_scroller->set_value( v_scroller->get_value()+increment);
-			else
+				(ImageBox.get_image_height() - v_scroller->get_page_size() ) )
+					v_scroller->set_value( v_scroller->get_value()+increment );
+			else // add the missing bit
 				v_scroller->set_value( 	ImageBox.get_image_height() -
-									ImageScroller.get_height() + extraheight );
+									v_scroller->get_page_size() );
 			break;
 			
 		case GDK_KP_Up:	
-		//case GDK_uparrow:
+		case GDK_uparrow:
 			#ifdef DEBUG
 			std::cout << "KEY_EVENT: Up was pressed. \n";
 			#endif
 			if( v_scroller->get_value() - increment >= 0 )
 				v_scroller->set_value( v_scroller->get_value()-increment );
-			else // add the missing bit
+			else // subtract the missing bit
 				v_scroller->set_value(0);
 			break;
 			
@@ -956,8 +956,8 @@ void AppWindow::save_config(void)
 		
 		w_width = get_width();
 		w_height = get_height();
-		v_width = ImageScroller.get_width()-4;
-		v_height = ImageScroller.get_height()-4;
+		v_width = (int)h_scroller->get_page_size();
+		v_height = (int)v_scroller->get_page_size();
 
 		if( v_height == 0 )
 			v_height = 420;
@@ -974,14 +974,12 @@ void AppWindow::save_config(void)
 		}
 	}
 
-// we don't use this, signalling is totally broken... it is impossible to predict if
-// get_width() / get_height() will return the size before or after the configure event
-// has been actualised
-void AppWindow::on_my_configure_event( GdkEventConfigure* event )
+// when resizing the window, fit the image to screen
+void AppWindow::on_resize( void )
 	{
-	std::cout << "configure event" << std::endl;
-	//while(Gtk::Main::events_pending()) Gtk::Main::iteration();
-	ImageBox.ScaleImage2(ImageScroller.get_width()-4,ImageScroller.get_height()-4,&scalefactor);
+	while(Gtk::Main::events_pending()) Gtk::Main::iteration(); // makes it more fluid
+	ImageBox.ScaleImage2((int)h_scroller->get_page_size(),
+						(int)v_scroller->get_page_size(),&scalefactor);
 	}
 
 void AppWindow::on_mouse_wheel_up(void)	{}
