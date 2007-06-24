@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = gnu
-SUBDIRS = src po pixmaps
+SUBDIRS = src po pixmaps pixmaps/icon
 
 # Desktop entry
 desktopdir		= $(datadir)/applications

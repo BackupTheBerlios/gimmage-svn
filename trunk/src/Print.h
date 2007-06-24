@@ -22,7 +22,7 @@ Copyright 2006 Bartek Kostrzewa
 #include <pangomm.h>
 #include <gtkmm/printoperation.h>
 
-class Print : public Gtk::PrintOperation
+class CPrint : public Gtk::PrintOperation
 {
 public:
 	static Glib::RefPtr<PrintFormOperation> create();

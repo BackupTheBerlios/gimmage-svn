@@ -45,6 +45,23 @@ Copyright 2006 Bartek Kostrzewa
 
 extern Glib::ustring iconpath;
 
+
+// derive from ScrolledWindow to expose interface to the scrollbar widgets
+class ScrolledWindowCustom : public Gtk::ScrolledWindow
+{
+public:	
+	int get_hscrollbar_height()
+		{
+		return (*get_hscrollbar()).get_height();
+		}
+		
+	int get_vscrollbar_width()
+		{
+		return (*get_vscrollbar()).get_width();
+		}
+	
+};
+
 class AppWindow : public Gtk::Window
 	{
 	public:
@@ -73,7 +90,7 @@ class AppWindow : public Gtk::Window
 
 		Gtk::Adjustment * h_scroller;
 		Gtk::Adjustment * v_scroller;
-		Gtk::ScrolledWindow ImageScroller;
+		ScrolledWindowCustom ImageScroller;
 		ImageEventBox ImageBox;
 	
 	// filechooser to let the user choose files!
@@ -169,6 +186,10 @@ class AppWindow : public Gtk::Window
 		virtual void on_mouse_wheel_down(void);
 		virtual void on_right_click(void);
 		virtual void on_left_click(void);
+
+		virtual void on_my_configure_event(GdkEventConfigure*);
+		
+		virtual bool on_delete_event(GdkEventAny*);
 
 		// the following two ints are important for the drag scrolling
 		gdouble dragoldx, dragoldy;

@@ -17,6 +17,21 @@ Copyright 2006 Bartek Kostrzewa
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
     USA   */
 
-// gimmage: PrintPreviewTab.cpp
+// gimmage: PrintPreview.cpp
 
-#include "PrintPreviewTab.h"
+#include "PrintPreview.h"
+
+CPrintPreview::CPrintPreview() :
+	Page(), // */
+	PageContext( Page.get_window()->create_cairo_context() )
+	{
+	//PageContext = Page.get_window()->create_cairo_context();
+	//PageContext->set_source_rgb(1.0,1.0,1.0);
+	//PageContext->set_line_width(1.0);
+	
+	add(Page);
+	show_all_children();
+	}
+	
+CPrintPreview::~CPrintPreview() {}
+

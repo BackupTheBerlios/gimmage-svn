@@ -47,36 +47,28 @@ void find_iconpath( Glib::ustring progname )
 		iconpath += "share/gimmage/pixmaps/";
 		}
 
-	#ifdef DEBUG
-	std::cout << "FIND_ICONPATH1: trying: " << iconpath << std::endl;
-	#endif
-	
-
-
 	if( iconpath == "" ) 
 		iconpath = "/usr/share/gimmage/pixmaps/"; // try to prevent errors from PATH lacking the executable
 	else
 		return;
-
-	#ifdef DEBUG
-	std::cout << "FIND_ICONPATH2: trying: " << iconpath << std::endl;
-	#endif
 		
 	if( stat( iconpath.c_str(), &filemode) != 0 ) 
 		iconpath = "/usr/local/share/gimmage/pixmaps/";
-		
 	
 	// last resort to current working directory for pixmaps (when running
 	// gimmage from the extraction directory to try it out for instance
 	if( stat( iconpath.c_str(), &filemode) != 0 ) 
-		iconpath = "../pixmaps/";	
+		iconpath = "../pixmaps/";
+		
+	if( stat( iconpath.c_str(), &filemode) != 0 ) 
+		iconpath = "pixmaps/";	
 
 	#ifdef DEBUG
-	std::cout << "FIND_ICONPATH3: trying: " << iconpath << std::endl;
+	std::cout << "FIND_ICONPATH: " << iconpath << std::endl;
 	#endif	
 
 	if( stat( iconpath.c_str(), &filemode) != 0 )
-		std::cout << GT("Gimmage pixmaps could not be found! This will cause a segfault.\n");
+		std::cout << GT("Gimmage pixmaps could not be found! This might cause a segfault.\n");
 		
 		
 	}
@@ -89,9 +81,9 @@ int main(int argc, char *argv[])
 	std::cout << "LOCALE: " << LC_MESSAGES << " " << PACKAGE << " " << LOCALEDIR << std::endl;
 #endif // DEBUG 	
 
-	setlocale (LC_CTYPE, "");
-	setlocale (LC_MESSAGES, "");
-	setlocale (LC_ALL, "");
+	//setlocale (LC_CTYPE, "");
+	//setlocale (LC_MESSAGES, "");
+	//setlocale (LC_ALL, "");
   	bindtextdomain (PACKAGE, LOCALEDIR);
   	bind_textdomain_codeset(PACKAGE, "UTF-8");
   	textdomain(PACKAGE);
@@ -110,8 +102,15 @@ int main(int argc, char *argv[])
 	Glib::init();
 	Glib::set_prgname("gimmage");
 	Glib::set_application_name("Image Viewer");
+	
+	// set up command line help
+	Glib::OptionContext options( "[dirname] ... [filename]"
+				"\n\n  gimmage will scan directories given up to one level deep\n"
+				"  and add any filenames given to its list of images to be displayed\n\n"
+				"    example: gimmage file1 file2 dir1 dir2\n\n"
+				"  will display all images in dir1 and dir2 and file1 and file2\n" );
 
-	Gtk::Main kit(argc,argv);
+	Gtk::Main kit(argc,argv,options);
 
 	AppWindow gimmage(argc, argv);
 	Gtk::Main::run(gimmage);

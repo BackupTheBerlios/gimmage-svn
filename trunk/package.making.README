@@ -1,6 +1,6 @@
-dpkg-buildpackage for DEBIAN/Ubunti
+"dpkg-buildpackage -rfakeroot" for DEBIAN/Ubunti
 	change debian/changelog	
 
-make dist for autotools tar.gz package
+"make dist" for autotools tar.gz package
 	change ChangeLog
 	change configure.in

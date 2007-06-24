@@ -17,4 +17,19 @@ Copyright 2006 Bartek Kostrzewa
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
     USA   */
 
-// gimmage: PrintPreviewTab.h
+// gimmage: PrintPreview.h
+
+#include <gtkmm/drawingarea.h>
+#include <gtkmm/bin.h>
+#include <cairomm/cairomm.h>
+
+class CPrintPreview : public Gtk::Bin
+{
+public:
+	CPrintPreview();
+	~CPrintPreview();
+	
+	Gtk::DrawingArea Page;
+	Cairo::RefPtr<Cairo::Context> PageContext;
+private:	
+};

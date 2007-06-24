@@ -27,7 +27,7 @@ Copyright 2006 Bartek Kostrzewa
 
 extern Glib::ustring iconpath;
 
-// this event box and image object will hold the image and provide a context menu
+// this event box and image object will hold the image and provide a context
 // for user interaction (that's why it inherits EventBox)
 
 class ImageEventBox : public Gtk::EventBox

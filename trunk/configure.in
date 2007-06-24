@@ -64,6 +64,7 @@ AC_OUTPUT(
 	Makefile
 	src/Makefile
 	pixmaps/Makefile
+	pixmaps/icon/Makefile
 	po/Makefile.in
 	gimmage.desktop
 )

@@ -39,7 +39,7 @@ ImageEventBox::ImageEventBox() :
 	textdomain (PACKAGE);	
 	
 	// place the image in the image alignment and that in the eventbox
-	set_visible_window(false);
+	set_visible_window(true);
 	set_above_child(true);
 	add(Image);
 	loaded = false;

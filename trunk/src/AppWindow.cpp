@@ -58,14 +58,7 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	I_ToggleButton_ShowFileChooser(Gtk::StockID("gtk-find"), Gtk::IconSize(1)),
 	I_Button_Quit(Gtk::StockID("gtk-quit"), Gtk::IconSize(1))
 	{
-
-	setlocale (LC_CTYPE, "");
-	setlocale (LC_MESSAGES, "");
-	setlocale (LC_ALL, "");
-	bindtextdomain (PACKAGE, LOCALEDIR);
-	bind_textdomain_codeset(PACKAGE, "UTF-8");
-	textdomain(PACKAGE);
-
+	
 	// copy command line
 	argc = argnum;
 	argv = argcon;
@@ -163,9 +156,6 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 
 
 	// Drag scrolling the image
-	ImageScroller.add_events(Gdk::BUTTON1_MOTION_MASK);
-	ImageScroller.add_events(Gdk::BUTTON_PRESS_MASK);
-	ImageScroller.add_events(Gdk::BUTTON_RELEASE_MASK);
 	ImageScroller.signal_motion_notify_event().connect(sigc::mem_fun(*this,&AppWindow::on_button1_pressed_motion));
 	ImageScroller.signal_button_press_event().connect(sigc::mem_fun(*this,&AppWindow::on_button_press_event));
 	ImageScroller.signal_button_release_event().connect(sigc::mem_fun(*this,&AppWindow::on_button_release_event));
@@ -194,9 +184,10 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	ToggleButton_ShowFileChooser.signal_clicked().
 							connect(sigc::mem_fun(*this, &AppWindow::on_button_show_filechooser) );
 
-	Button_Quit.signal_clicked().connect(sigc::mem_fun(*this, &AppWindow::on_button_quit));
-
-	signal_hide().connect(sigc::mem_fun(*this, &AppWindow::save_config));
+	Button_Quit.signal_clicked().connect(sigc::mem_fun(*this, &AppWindow::on_button_quit) );
+	signal_delete_event().connect(sigc::mem_fun(*this, &AppWindow::on_delete_event) );
+	
+	//signal_configure_event().connect_notify(sigc::mem_fun(*this,&AppWindow::on_my_configure_event));
 
 	// let's catch keystrokes
 	signal_key_press_event().connect(sigc::mem_fun(*this,&AppWindow::on_key_press_event) );
@@ -205,6 +196,7 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	show_all_children();
 
 	// now hide the filebrowser, i'm lazy to type show for all children!
+	// 220 as a height is appropriate for three rows in the filechooser	
 	FileChooser.set_size_request( FileChooser.get_width(), 220 );
 	FileChooser.hide();
 	// make the save button insensitive, it will be usable once it is needed.
@@ -218,6 +210,13 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 		Button_Next.set_sensitive(false);
 		Button_Previous.set_sensitive(false);
 		}
+		
+	// clamp the scrollbar adjustments
+	if( ImageBox.is_loaded() )
+		{
+		v_scroller->set_upper( ImageBox.get_height() - ImageScroller.get_height() );
+		h_scroller->set_upper( ImageBox.get_width() - ImageScroller.get_width() );
+		}
 
 	// load the first image
 	set_title( "gimmage: " + ImageManager.get_current_file() );
@@ -226,12 +225,6 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 						v_width,
 						v_height);
 						
-	if( ImageBox.is_loaded() )
-		{
-		h_scroller->set_upper( ImageBox.get_image_width() - ImageScroller.get_width() );
-		v_scroller->set_upper( ImageBox.get_image_height() - ImageScroller.get_height() );
-		}
-
 	set_buttons_active( ImageBox.is_loaded() );
 
 	}
@@ -250,7 +243,7 @@ void AppWindow::set_buttons_active(bool active)
 	Button_RotateAntiClockwise.set_sensitive(active);
 	}
 
- bool AppWindow::on_button_press_event(GdkEventButton *event)
+bool AppWindow::on_button_press_event(GdkEventButton *event)
  	{
 		int x, y;
  		ImageBox.get_window()->set_cursor(Hand);	
@@ -288,9 +281,10 @@ bool AppWindow::on_button1_pressed_motion(GdkEventMotion *event)
 #endif // DEBUG
 
 		// when the scrollbars are visible we need to scroll further!
-		// the values are pulled out of my behind, but they seem to work
-		int extrawidth = ( ImageScroller.get_vscrollbar_visible() ) ? 23 : 4;
-		int extraheight = ( ImageScroller.get_hscrollbar_visible() ) ? 23 : 4;
+		// the additional bit is pulled out of my ass (6 and 4), but it seems to work
+		
+		int extraheight = ImageScroller.get_hscrollbar_visible() ? ImageScroller.get_hscrollbar_height() + 6 : 4;
+		int extrawidth = ImageScroller.get_vscrollbar_visible() ? ImageScroller.get_vscrollbar_width() + 6 : 4;
 		
 		if(ImageScroller.get_width() < ImageBox.get_image_width())
 			{
@@ -300,12 +294,12 @@ bool AppWindow::on_button1_pressed_motion(GdkEventMotion *event)
 				{
 				h_scroller->set_value(h_scroller->get_value() - (x - dragoldx));
 				dragoldx = x;
-				}
+				}				
 			}
 
 		if(ImageScroller.get_height() < ImageBox.get_image_height())
 			{
-			if((v_scroller->get_value() - (y-dragoldy)) > 0  &&
+			if( (v_scroller->get_value() - (y-dragoldy)) >= 0  &&
 				(v_scroller->get_value() - (y-dragoldy)) <=
 				(ImageBox.get_image_height() - 	ImageScroller.get_height() + extraheight ))
 				{
@@ -325,9 +319,12 @@ bool AppWindow::on_button1_pressed_motion(GdkEventMotion *event)
 void AppWindow::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& selection_data, guint info, guint time)
 	{  
     // this is totally ridiculous, but so be it!
-	// note, we ERASE "file://" at the beginning of the uri!
-	// NOTE: this potentially wrong... what if the uri is ftp://.... ?
-	Glib::ustring string_filename = selection_data.get_data_as_string().erase(0,7);
+	// we erase the protocol in front of the filename
+	// using std::string because Glib::ustring throws a conversion error for some reason
+	std::string string_filename = selection_data.get_data_as_string();
+	string_filename.erase(0, string_filename.find(':')+3); 
+
+
 
 	//convert to char* and unescape
 	char * temp_filename = curl_unescape( string_filename.c_str(), 0);
@@ -435,7 +432,7 @@ void AppWindow::set_filechooser_dir(void)
 #ifdef DEBUG
     std::cout << "SET_FILECHOOSER_DIR: get_current_file(): " << ImageManager.get_current_file() << std::endl;
     std::cout << "SET_FILECHOOSER_DIR: path: " << path << std::endl;
-#endif
+#endif // DEBUG
     	    
 			FileChooser.set_filename( path );
 
@@ -540,10 +537,12 @@ void AppWindow::on_button_zoom_1to1(void)
 
 void AppWindow::adjust_adjustment_on_zoom(double oldscale)
 	{
-	// clamp the scrollbars to the new image size
-	
-	h_scroller->set_upper( ImageBox.get_image_width() - ImageScroller.get_width() );
-	v_scroller->set_upper( ImageBox.get_image_height() - ImageScroller.get_height() );
+	// clamp the scrollbar adjustments
+	if( ImageBox.is_loaded() )
+		{
+		v_scroller->set_upper( ImageBox.get_height() - ImageScroller.get_height() );
+		h_scroller->set_upper( ImageBox.get_width() - ImageScroller.get_width() );
+		}	
 	
 	double ratio = scalefactor / oldscale;
 	// adjust the scrollbar to keep the image centered
@@ -663,11 +662,9 @@ void AppWindow::on_button_show_filechooser(void)
 	// selected in the filechooser if you press f repeatedly quickly
 	while(Gtk::Main::events_pending()) Gtk::Main::iteration();
 	ImageBox.ScaleImage2(ImageScroller.get_width()-4,ImageScroller.get_height()-4,&scalefactor);
-	while(Gtk::Main::events_pending()) Gtk::Main::iteration();
 	
 	if( FileChooser.is_visible() ) 
 		{ 
-		FileChooser.set_filter(ImageFilter);
 		set_filechooser_dir();
 		}
 	}
@@ -679,19 +676,25 @@ void AppWindow::on_button_quit(void)
 	save_config();
 	hide();
 	}
-	
+
+// catch delete events and save correctly before closing
+bool AppWindow::on_delete_event( GdkEventAny *event )
+	{
+	on_button_quit();
+	return true;
+	}
 
 	// arrows don't work, KP arrows work
 bool AppWindow::on_key_press_event(GdkEventKey * key)
 	{
 	int increment = 20;
 	
-	// 23 and 4 are arbitrarily chosen, they seem to be exactly the size of the
-	// border plus the scrollbar or the border only depending on whether the
-	// scrollbars are shown or not
-	int extrawidth =	( ImageScroller.get_vscrollbar_visible() ) ? 23 : 4;
-	int extraheight =	( ImageScroller.get_hscrollbar_visible() ) ? 23 : 4;
-
+	// when the scrollbars are visible, the image area is smaller
+	// the additional bit is pulled out of my ass, but it seems to work
+	
+	int extraheight = ImageScroller.get_hscrollbar_height() + 6;
+	int extrawidth = ImageScroller.get_vscrollbar_width() + 6;
+	
 	switch( key->keyval )
 		{
 		case GDK_Escape:
@@ -947,8 +950,10 @@ void AppWindow::save_config(void)
 		}
 	else
 		{
+		// alow the filechooser to hide before saving the sizes
 		FileChooser.hide();
 		while(Gtk::Main::events_pending()) Gtk::Main::iteration();
+		
 		w_width = get_width();
 		w_height = get_height();
 		v_width = ImageScroller.get_width()-4;
@@ -967,6 +972,16 @@ void AppWindow::save_config(void)
 						w_width, w_height, v_width, v_height);
 		fclose(config);
 		}
+	}
+
+// we don't use this, signalling is totally broken... it is impossible to predict if
+// get_width() / get_height() will return the size before or after the configure event
+// has been actualised
+void AppWindow::on_my_configure_event( GdkEventConfigure* event )
+	{
+	std::cout << "configure event" << std::endl;
+	//while(Gtk::Main::events_pending()) Gtk::Main::iteration();
+	ImageBox.ScaleImage2(ImageScroller.get_width()-4,ImageScroller.get_height()-4,&scalefactor);
 	}
 
 void AppWindow::on_mouse_wheel_up(void)	{}

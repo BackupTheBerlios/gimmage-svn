@@ -1,4 +1,5 @@
 22.06.07 - 0.2.3
+-Add command line --help (finally!)
 -Make save button sensitive only if the image format is supported for saving
 -Add resolver for ".." in filenames.
 -Fix Filechooser Selection bug! (kinda)
