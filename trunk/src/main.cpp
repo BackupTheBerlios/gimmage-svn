@@ -46,8 +46,9 @@ void find_iconpath( Glib::ustring progname )
 	if( iconpath != "" && iconpath.find("bin") != std::string::npos )
 		{	
 		iconpath.erase( iconpath.find("bin") );
+		app_icon_path = iconpath;
 		iconpath += "share/gimmage/pixmaps/";
-		app_icon_path += "pixmaps/gimmage.png";
+		app_icon_path += "share/pixmaps/gimmage.png";
 		}
 
 	if( iconpath == "" )

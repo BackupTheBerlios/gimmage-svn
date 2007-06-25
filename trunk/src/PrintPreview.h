@@ -19,17 +19,35 @@ Copyright 2006 Bartek Kostrzewa
 
 // gimmage: PrintPreview.h
 
-#include <gtkmm/drawingarea.h>
-#include <gtkmm/bin.h>
-#include <cairomm/cairomm.h>
+#include <gtkmm/box.h>
+#include <iostream>
 
-class CPrintPreview : public Gtk::DrawingArea
+#include "PagePreview.h"
+
+class CPrintPreview : public Gtk::VBox
 {
 public:
 	CPrintPreview();
 	~CPrintPreview();
 	
+	void set_image_filename( Glib::ustring );
+	Glib::ustring& get_image_filename();
+	void load( Glib::ustring );
+	
 protected:
 	virtual bool on_expose_event(GdkEventExpose*);
-private:	
+	
+	Glib::ustring image_filename;
+	Glib::RefPtr<Gdk::Pixbuf> ImagePixbuf;
+	
+	PagePreview	Page;
+
+private:
+	int page_width;
+	int page_height;
+	double image_width_ratio;
+	double image_height_ratio;
+	
+	int xpos;
+	int ypos;
 };

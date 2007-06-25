@@ -32,12 +32,6 @@ ImageEventBox::ImageEventBox() :
 	EventBox(),
 	Image()
 	{
-	setlocale (LC_CTYPE, "");
-	setlocale (LC_MESSAGES, "");
-	setlocale (LC_ALL, "");
-	bindtextdomain (PACKAGE, LOCALEDIR);
-	textdomain (PACKAGE);	
-	
 	// place the image in the image alignment and that in the eventbox
 	set_visible_window(true);
 	set_above_child(true);
