@@ -17,29 +17,35 @@ Copyright 2006 Bartek Kostrzewa
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
     USA   */
 
-// gimmage: Print.h
+// gimmage: PrintPreviewWidget.h
 
-#include <pangomm.h>
-#include <gtkmm/printoperation.h>
+#include <gtkmm/box.h>
+#include <gtkmm/buttonbox.h>
+#include <gtkmm/frame.h>
+#include <iostream>
 
-class CPrint : public Gtk::PrintOperation
+#include "PagePreview.h"
+
+class CPrintPreviewWidget : public Gtk::VBox
 {
 public:
-	static Glib::RefPtr<PrintFormOperation> create();
-	CPrint();
-	virtual ~CPrint();
-
+	CPrintPreviewWidget();
+	~CPrintPreviewWidget();
+	
+	void set_image_filename( Glib::ustring );
+	Glib::ustring& get_image_filename();
+	
 protected:
+	Glib::ustring image_filename;
+	CPagePreview	Page;
+	
+	Gtk::HBox		TopHBox;
+	Gtk::HButtonBox	HButtonBox;
+	
+	Gtk::Frame	PagePreviewFrame;
+	Gtk::Frame	PageSettingsFrame;
+	Gtk::Frame	ImageListFrame;
 
-	virtual void on_begin_print( const Glib::RefPtr<Gtk::PrintContext>& context );
-	virtual void on_draw_page( const Glib::RefPtr<Gtk::PrintContext<& context, int page_nr );
+private:
 
-	// Custom tab for preview page
-	virtual Gtk::Widget* on_create_custom_widget();
-	virtual void on_custom_widget_apply(Gtk::Widget* widget);
-
-	Glib::RefPtr<Pango::Layout> m_refLayout;
 };
-	
-
-	

@@ -37,7 +37,6 @@ extern "C" {
 
 AppWindow::AppWindow(int argnum, char **argcon) :
 	Hand(Gdk::FLEUR),
-	Left_Ptr(Gdk::LEFT_PTR),
 	Watch(Gdk::WATCH),
 	FileChooser(Gtk::FILE_CHOOSER_ACTION_OPEN),
 	Button_Tooltips(),
@@ -246,12 +245,37 @@ void AppWindow::set_buttons_active(bool active)
 
 bool AppWindow::on_button_press_event(GdkEventButton *event)
  	{
-		int x, y;
- 		ImageBox.get_window()->set_cursor(Hand);	
-		ImageScroller.get_pointer(x, y);
-		dragoldx = x;
-		dragoldy = y;
- 		return true;
+ 		switch( event->button )
+ 		{
+ 		case 1:
+			int x, y;
+			ImageBox.get_window()->set_cursor(Hand);	
+			ImageScroller.get_pointer(x, y);
+			dragoldx = x;
+			dragoldy = y;
+			return true;
+			break; //just to be sure
+			
+		// mouse wheel events are handled as buttons 4 and 5
+		// we set dragoldx and dragoldy to -999999 as a condition
+		// for drag scrolling, so we only drag scroll on mouse
+		// button 1
+		case 4:
+			on_button_next();
+			dragoldx = dragoldy = -999999;
+			return true;
+			break;
+			
+		case 5:
+			on_button_previous();
+			dragoldx = dragoldy = -999999;
+			return true;
+			break;
+		
+		default:
+			dragoldx = dragoldy = -999999;
+			break;
+		}
  	}
 
 bool AppWindow::on_button_release_event(GdkEventButton *event)
@@ -259,8 +283,9 @@ bool AppWindow::on_button_release_event(GdkEventButton *event)
 	#ifdef DEBUG
 	std::cout << "ON_BUTTON_RELEASE_EVENT: released! \n";
 	#endif
-		// I know, I know.. there are also left-handed people! ....
-		ImageBox.get_window()->set_cursor(Left_Ptr);
+		// set_cursor() sets the cursor to the parent window's cursor, which should
+		// properly handle right- and left-pointing cursors
+		ImageBox.get_window()->set_cursor();
 		return true;
 	}
 
@@ -269,41 +294,57 @@ bool AppWindow::on_button_release_event(GdkEventButton *event)
 // big thanks to Ramax Lo for fixing this!!
 bool AppWindow::on_button1_pressed_motion(GdkEventMotion *event)
 	{
-	if ( ImageBox.is_loaded() )
+	if( dragoldx != -999999 && dragoldy != -999999 )
 		{
-		int x,y;
-		ImageScroller.get_pointer(x, y);
-		
+		if ( ImageBox.is_loaded() )
+			{
+			int x,y;
+			ImageScroller.get_pointer(x, y);
+			
 #ifdef DEBUG
-		std::cout << "Y = \t" << event->y << '\t';
-		std::cout << "Oldy = \t" << dragoldy << std::endl;
-		std::cout << "Pointer x = " << x << std::endl;
-		std::cout << "Pointer y = " << y << std::endl;
+std::cout << "Y = \t" << event->y << '\t';
+std::cout << "Oldy = \t" << dragoldy << std::endl;
+std::cout << "Pointer x = " << x << std::endl;
+std::cout << "Pointer y = " << y << std::endl;
 #endif // DEBUG
-
-		if(h_scroller->get_page_size() < ImageBox.get_image_width())
-			{
-			if( (h_scroller->get_value() - (x - dragoldx)) >= 0  &&
-			    (h_scroller->get_value() - (x - dragoldx)) <=
-				( ImageBox.get_image_width() - h_scroller->get_page_size() ) )
+	
+			if(h_scroller->get_page_size() < ImageBox.get_image_width())
 				{
-				h_scroller->set_value(h_scroller->get_value() - (x - dragoldx));
-				dragoldx = x;
-				}				
-			}
-
-		if(v_scroller->get_page_size() < ImageBox.get_image_height())
-			{
-			if( (v_scroller->get_value() - (y-dragoldy)) >= 0  &&
-				(v_scroller->get_value() - (y-dragoldy)) <=
-				(ImageBox.get_image_height() - 	v_scroller->get_page_size() ))
-				{
-				v_scroller->set_value(v_scroller->get_value() - (y-dragoldy));
-				dragoldy = y;
+				if( (h_scroller->get_value() - (x - dragoldx)) >= 0  &&
+					(h_scroller->get_value() - (x - dragoldx)) <=
+					( ImageBox.get_image_width() - h_scroller->get_page_size() ) )
+					{
+					h_scroller->set_value(h_scroller->get_value() - (x - dragoldx));
+					dragoldx = x;
+					}
+					
+				// snap to end	
+				else if(	(h_scroller->get_value() - (x - dragoldx)) < 0 )
+					h_scroller->set_value(0);
+				else if(	(h_scroller->get_value() - (x - dragoldx)) >
+					( ImageBox.get_image_width() - h_scroller->get_page_size() ) )
+					h_scroller->set_value( ImageBox.get_image_width() - h_scroller->get_page_size() );
 				}
+	
+			if(v_scroller->get_page_size() < ImageBox.get_image_height())
+				{
+				if( (v_scroller->get_value() - (y-dragoldy)) >= 0  &&
+					(v_scroller->get_value() - (y-dragoldy)) <=
+					(ImageBox.get_image_height() - 	v_scroller->get_page_size() ))
+					{
+					v_scroller->set_value(v_scroller->get_value() - (y-dragoldy));
+					dragoldy = y;
+					}
+				// 	snap to end
+				else if(	(v_scroller->get_value() - (y - dragoldy)) < 0 )
+					v_scroller->set_value(0);
+				else if(	(v_scroller->get_value() - (y - dragoldy)) >
+					( ImageBox.get_image_height() - v_scroller->get_page_size() ) )
+					v_scroller->set_value( ImageBox.get_image_height() - v_scroller->get_page_size() );
+				}
+	
+			return true;
 			}
-
-		return true;
 		}
 	return false;
 	}
@@ -318,8 +359,6 @@ void AppWindow::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& cont
 	// using std::string because Glib::ustring throws a conversion error for some reason
 	std::string string_filename = selection_data.get_data_as_string();
 	string_filename.erase(0, string_filename.find(':')+3); 
-
-
 
 	//convert to char* and unescape
 	char * temp_filename = curl_unescape( string_filename.c_str(), 0);
@@ -348,8 +387,8 @@ void AppWindow::busy(bool showwatch)
 		}
 	else
 		{
-    	get_window()->set_cursor(Left_Ptr);
-    	ImageBox.get_window()->set_cursor(Left_Ptr);
+    	get_window()->set_cursor();
+    	ImageBox.get_window()->set_cursor();
 		}
 	}
 		
@@ -697,6 +736,9 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 	
 	switch( key->keyval )
 		{
+		case GDK_Tab:
+			break;
+			
 		case GDK_Escape:
 			#ifdef DEBUG
 			std::cout << "KEY_EVENT: Escape was pressed. Quitting... \n";
@@ -739,7 +781,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 				Button_ZoomOut.activate();
 			break;
 			
-		case GDK_Pointer_Left:
+		case GDK_Left:	
 		case GDK_KP_Left:
 		case GDK_leftarrow:
 			#ifdef DEBUG
@@ -751,6 +793,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 				h_scroller->set_value(0);
 			break;
 			
+		case GDK_Right:	
 		case GDK_KP_Right:
 		case GDK_rightarrow:
 			#ifdef DEBUG
@@ -765,6 +808,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			break;
 			
 		case GDK_KP_Down:
+		case GDK_Down:
 		case GDK_downarrow:
 			#ifdef DEBUG
 			std::cout << "KEY_EVENT: Down was pressed. \n";
@@ -777,7 +821,8 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 									v_scroller->get_page_size() );
 			break;
 			
-		case GDK_KP_Up:	
+		case GDK_KP_Up:
+		case GDK_Up:
 		case GDK_uparrow:
 			#ifdef DEBUG
 			std::cout << "KEY_EVENT: Up was pressed. \n";
@@ -840,7 +885,6 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			    ToggleButton_ShowFileChooser.set_active( false ) : ToggleButton_ShowFileChooser.set_active( true );
 			break;
 
-
 		// i find this confusing, not sure what other people think!
 		/* case GDK_h:
 		case GDK_H:
@@ -851,6 +895,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			break; */
 		
 		default:
+			return false;
 			break;
 		}
 	return true;

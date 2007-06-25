@@ -29,12 +29,12 @@ extern "C" {
 }
 
 ImageEventBox::ImageEventBox() :
-	EventBox(),
+	//EventBox(),
 	Image()
 	{
 	// place the image in the image alignment and that in the eventbox
-	set_visible_window(true);
-	set_above_child(true);
+	set_visible_window(false);
+	set_above_child(false);
 	add(Image);
 	loaded = false;
 	}

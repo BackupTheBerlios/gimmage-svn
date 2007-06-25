@@ -46,22 +46,6 @@ Copyright 2006 Bartek Kostrzewa
 extern Glib::ustring iconpath;
 
 
-// derive from ScrolledWindow to expose interface to the scrollbar widgets
-class ScrolledWindowCustom : public Gtk::ScrolledWindow
-{
-public:	
-	int get_hscrollbar_height()
-		{
-		return (*get_hscrollbar()).get_height();
-		}
-		
-	int get_vscrollbar_width()
-		{
-		return (*get_vscrollbar()).get_width();
-		}
-	
-};
-
 class AppWindow : public Gtk::Window
 	{
 	public:
@@ -70,8 +54,6 @@ class AppWindow : public Gtk::Window
 
 		
 	protected:
-		Gdk::Cursor Hand, Left_Ptr, Watch;
-	
 		// these will take the command line options, otherwise we can't access them
 		// from our methods
 		int argc;
@@ -90,7 +72,7 @@ class AppWindow : public Gtk::Window
 
 		Gtk::Adjustment * h_scroller;
 		Gtk::Adjustment * v_scroller;
-		ScrolledWindowCustom ImageScroller;
+		Gtk::ScrolledWindow ImageScroller;
 		ImageEventBox ImageBox;
 	
 	// filechooser to let the user choose files!
@@ -151,6 +133,7 @@ class AppWindow : public Gtk::Window
 
 		// indicate we're busy
 		void busy(bool);
+		Gdk::Cursor Hand, Watch;
 	
 	// Event Handlers
 	   		

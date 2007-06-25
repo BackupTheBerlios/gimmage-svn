@@ -17,31 +17,28 @@ Copyright 2006 Bartek Kostrzewa
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
     USA   */
 
-// gimmage: PrintPreview.h
+// gimmage: PagePreview.h
 
-#include <gtkmm/box.h>
 #include <iostream>
 
-#include "PagePreview.h"
+#include <gdkmm/pixbuf.h>
+#include <gtkmm/drawingarea.h>
+#include <gtkmm/eventbox.h>
+#include <cairomm/cairomm.h>
 
-class CPrintPreview : public Gtk::VBox
+class CPagePreview : public Gtk::DrawingArea
 {
 public:
-	CPrintPreview();
-	~CPrintPreview();
-	
-	void set_image_filename( Glib::ustring );
-	Glib::ustring& get_image_filename();
+	CPagePreview();
+	~CPagePreview();
 	void load( Glib::ustring );
-	
+		
 protected:
-	virtual bool on_expose_event(GdkEventExpose*);
-	
-	Glib::ustring image_filename;
 	Glib::RefPtr<Gdk::Pixbuf> ImagePixbuf;
 	
-	PagePreview	Page;
+	virtual bool on_expose_event(GdkEventExpose*);
 
+	
 private:
 	int page_width;
 	int page_height;
@@ -49,5 +46,5 @@ private:
 	double image_height_ratio;
 	
 	int xpos;
-	int ypos;
+	int ypos;	
 };

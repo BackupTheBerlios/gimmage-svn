@@ -17,28 +17,23 @@ Copyright 2006 Bartek Kostrzewa
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
     USA   */
 
-// gimmage: PrintPreview.cpp
+// gimmage: PagePreview.cpp
 
-#include "PrintPreview.h"
-#include <gdkmm/pixbuf.h>
+#include "PagePreview.h"
 
-CPrintPreview::CPrintPreview() :
-	Page(),
-	PageEventBox()
+CPagePreview::CPagePreview()
 	{
 	page_width = 200;
 	page_height = 300;
 	image_width_ratio = 0.5;
 	image_height_ratio = 0.5;
 	
-	image_filename = "/home/bartek/Dokumenter/Biller/butzi1.jpg";
-	PageEventBox.add(Page);
-	pack_start(PageEventBox);
+	set_size_request(200,300);
 	}
 	
-CPrintPreview::~CPrintPreview() {}
-	
-void CPrintPreview::load( Glib::ustring filename )
+CPagePreview::~CPagePreview() {}
+
+void CPagePreview::load( Glib::ustring filename )
 	{
 	ImagePixbuf = Gdk::Pixbuf::create_from_file( 
 		"/home/bartek/Dokumenter/Biller/butzi1.jpg",
@@ -50,26 +45,16 @@ void CPrintPreview::load( Glib::ustring filename )
 		std::cout << "ney, empty \n";	
 	}
 
-void CPrintPreview::set_image_filename( Glib::ustring filename )
+bool CPagePreview::on_expose_event(GdkEventExpose *event)
 	{
-	image_filename = filename;
-	}
-	
-bool CPrintPreview::on_expose_event(GdkEventExpose *event)
-	{
-	//static bool loaded = false;
-	//if( !loaded )
-	//	{
-	
-	//	}
-
+	std::cout << "Fired!\n";
 			
-	Glib::RefPtr<Gdk::Window> window = Page.get_window();
+	Glib::RefPtr<Gdk::Window> window = get_window();
 	if(window)
 		{
 		// get the cairo context amd allocation
 		Cairo::RefPtr<Cairo::Context> cr = window->create_cairo_context();
-		Gtk::Allocation allocation = Page.get_allocation();
+		Gtk::Allocation allocation = get_allocation();
 		const int width = allocation.get_width();
 		const int height = allocation.get_height();
 		
@@ -89,6 +74,7 @@ bool CPrintPreview::on_expose_event(GdkEventExpose *event)
 		double offset = 4.0;
 		
 		// draw a neat shadow
+		cr->set_source_rgba(0.0,0.0,0.0,0.4);
 		cr->begin_new_path();
 		cr->move_to( width*border+offset,height*border+offset );
 		cr->line_to( width*(1.0-border)+offset,height*border+offset );
@@ -115,8 +101,8 @@ bool CPrintPreview::on_expose_event(GdkEventExpose *event)
 		cr->restore();
 
 		// and the image preview
-		ImagePixbuf->render_to_drawable( Page.get_window(),
-									Page.get_style()->get_black_gc(),
+		ImagePixbuf->render_to_drawable( get_window(),
+									get_style()->get_black_gc(),
 									0,
 									0,
 									(width-ImagePixbuf->get_width())/2,
@@ -128,6 +114,3 @@ bool CPrintPreview::on_expose_event(GdkEventExpose *event)
 		return true;
 		}
 	}
-	
-
-

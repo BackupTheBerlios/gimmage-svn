@@ -17,29 +17,34 @@ Copyright 2006 Bartek Kostrzewa
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
     USA   */
 
-// gimmage: Print.h
+// gimmage: PrintPreviewWidget.cpp
 
-#include <pangomm.h>
-#include <gtkmm/printoperation.h>
+#include "PrintPreviewWidget.h"
+#include <gdkmm/pixbuf.h>
 
-class CPrint : public Gtk::PrintOperation
-{
-public:
-	static Glib::RefPtr<PrintFormOperation> create();
-	CPrint();
-	virtual ~CPrint();
-
-protected:
-
-	virtual void on_begin_print( const Glib::RefPtr<Gtk::PrintContext>& context );
-	virtual void on_draw_page( const Glib::RefPtr<Gtk::PrintContext<& context, int page_nr );
-
-	// Custom tab for preview page
-	virtual Gtk::Widget* on_create_custom_widget();
-	virtual void on_custom_widget_apply(Gtk::Widget* widget);
-
-	Glib::RefPtr<Pango::Layout> m_refLayout;
-};
+CPrintPreviewWidget::CPrintPreviewWidget() :
+	Page()
+	{
+	image_filename = "/home/bartek/Dokumenter/Biller/butzi1.jpg";
 	
-
+	PagePreviewFrame.add(Page);
+	TopHBox.pack_start(PagePreviewFrame,Gtk::PACK_SHRINK);
+	TopHBox.pack_start(ImageListFrame,Gtk::PACK_EXPAND_WIDGET);
 	
+	pack_start(TopHBox,Gtk::PACK_SHRINK);
+	pack_start(PageSettingsFrame,Gtk::PACK_SHRINK);
+	pack_start(HButtonBox,Gtk::PACK_SHRINK);
+	
+	Page.load( image_filename );
+	}
+	
+CPrintPreviewWidget::~CPrintPreviewWidget() {}
+	
+void CPrintPreviewWidget::set_image_filename( Glib::ustring filename )
+	{
+	image_filename = filename;
+	}
+
+
+
+
