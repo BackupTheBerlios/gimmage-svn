@@ -1,0 +1,19 @@
+Package: gimmage
+Version: 0.2.3-1
+Section: graphics
+Priority: extra
+Architecture: i386
+Depends: libatk1.0-0 (>= 1.13.1), libc6 (>= 2.5-0ubuntu1), libcairo2 (>= 1.4.2), libcairomm-1.0-1, libcurl3 (>= 7.15.5-1), libfontconfig1 (>= 2.4.0), libgcc1 (>= 1:4.1.2), libglib2.0-0 (>= 2.12.9), libglibmm-2.4-1c2a, libgtk2.0-0 (>= 2.10.3), libgtkmm-2.4-1c2a, libmagic1, libpango1.0-0 (>= 1.16.2), libsigc++-2.0-0c2a (>= 2.0.2), libstdc++6 (>= 4.1.2), libx11-6, libxcursor1 (>> 1.1.2), libxext6, libxfixes3 (>= 1:4.0.1), libxi6, libxinerama1, libxrandr2 (>= 2:1.2.0), libxrender1
+Conflicts: gimmage
+Replaces: gimmage
+Provides: gimmage
+Installed-Size: 220
+Maintainer: Bartosz Kostrzewa <zoombat |AT| runbox |DOT| com>
+Description: gimmage: a small unix image viewer
+ A simple image viewer that aims to have a minimalist interface and tries
+ to be keyboard operable for browsing through a large number of images
+ quickly. It is appropriate for command line usage as it accepts
+ directories and image filenames as arguments. It has an in-application
+ file browser that allows users to select and drag images and directories
+ into the image viewing area in order to have them displayed.
+ .

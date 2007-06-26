@@ -1,0 +1,14 @@
+f6d8f0779dd8d85ead2ac21885b03b04  usr/bin/gimmage
+cade4983f5916c6cdbeb6fddaf241a46  usr/share/locale/de/LC_MESSAGES/gimmage.mo
+2caa0c6c4d86e1531e09669d4be91a11  usr/share/locale/fr/LC_MESSAGES/gimmage.mo
+e2833e6d8f0c94fc14bff41d21b5274d  usr/share/applications/gimmage.desktop
+a730ed5d05a5c9feab1ae28fed2e5c00  usr/share/pixmaps/gimmage.png
+6605d03f49bb55c936addea622f5989f  usr/share/gimmage/pixmaps/1to1.png
+d222c3fd3097fb46f4442d6872e42b98  usr/share/gimmage/pixmaps/anticlockwise.png
+b73f7bd04a02499f97d21033b80bfef3  usr/share/gimmage/pixmaps/clockwise.png
+29cdebcc0fb10c771043afe753217bb0  usr/share/gimmage/pixmaps/unreadable.png
+067a7f4c97ddad555fa4dc8b289d6e9c  usr/share/doc/gimmage/README
+b42a5ab0eb6a2e52fa548416fa8e956d  usr/share/doc/gimmage/TODO
+0ce4bd3699316d5681f6e7258d769235  usr/share/doc/gimmage/copyright
+df056777caeef34b057131c8ceaf7c0e  usr/share/doc/gimmage/changelog.Debian.gz
+4ff99f96163c4e4901c9de3ad67e6c8e  usr/share/doc/gimmage/changelog.gz
