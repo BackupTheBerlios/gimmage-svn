@@ -1,0 +1,46 @@
+gimmage (0.2.3-1) unstable; urgency=low
+
+  * Fixes filechooser selection bug
+  * Make save button sensitive only if the image format is supported for
+    saving
+  * Add resolver for ".." in filenames
+
+ -- Bartosz Kostrzewa <zoombat |AT| runbox |DOT| com>  Sat, 23 Jun 2007 19:33:54 +0100
+
+gimmage (0.2.2-1) unstable; urgency=low
+
+        * New upstream release
+
+ -- Bartosz Kostrzewa <zoombat |AT| runbox |DOT| com>  Sat, 16 Jun 2007 17:46:46 +0100
+
+
+gimmage (0.2.1-1) unstable; urgency=low
+
+        * Fix configuration file managment.
+        * It is no longer required to compile a LOCAL version to run gimmage
+          from the extraction directory, it now checks at run-time.
+        * Correctly load images that are not given with their full path
+          (resolve full path name upon loading)
+        * Show busy cursor for image loading and rotation.
+        * Added support for internationalisation.
+        * First translations to German and French. (very bad ones)
+        * Some changes to the internal filemanager to produce very slight
+          speedups. ( Reduce number of calls to iterator.end() and
+          iterator.begin() )
+        * Other changes to filemanager to skip magic file detection of the
+          filename
+          indicates an image format. It is much faster, but can result in
+          false
+          positives.
+        * When the user presses and holds the spacebar or backspace allow
+          the images
+          to be displayed in full by flushing the drawing queue before
+          proceeding
+          to the next image.
+        * Drag scrolling now works propery thanks to changes by Ramax Lo.
+        * Various cleanups.
+        * Complete autotools integration.
+
+
+ -- Bartosz Kostrzewa <zoombat |AT| runbox |DOT| com>  Fri,  8 Jun 2007 16:32:42 +0100
+

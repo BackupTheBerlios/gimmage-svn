@@ -1,0 +1,5 @@
+#!/bin/sh
+
+g++ -ggdb `pkg-config gtkmm-2.4 --libs --cflags` ../PagePreview.h \
+../PagePreview.cpp ../PrintPreviewWidget.h ../PrintPreviewWidget.cpp \
+testpp.cpp -o testpp
