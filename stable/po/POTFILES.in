@@ -1,6 +1,0 @@
-# List of source files with translation requirements
-
-src/main.cpp
-src/ImageEventBox.cpp
-src/AppWindow.cpp
-src/FileManager.cpp
