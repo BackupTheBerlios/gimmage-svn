@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=gimmage
+Icon=gimmage.png
 Exec=@prefix@/bin/gimmage
 Type=Application
 Categories=Application;Graphics;

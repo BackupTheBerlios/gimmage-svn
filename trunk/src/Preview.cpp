@@ -56,15 +56,14 @@ void CPreview::load( Glib::ustring filename, bool loadable )
 	else
 		{
 		set_size_request( 100,100 );	
+		
 		int width;
 		int height;
-		
-
 		get_size_request( width, height );
 		
 		// we don't have any padding so let's add a little something
-		width *= 0.98;
-		height *= 0.98;	
+		width = (int)(width*0.98);
+		height = (int)(height*0.98);	
 				
 		PixbufLoad( filename, width, height );
 			

@@ -22,10 +22,14 @@ Copyright 2006 Bartek Kostrzewa
 #include "PrintPreviewWidget.h"
 #include <gdkmm/pixbuf.h>
 
-CPrintPreviewWidget::CPrintPreviewWidget() :
+CPrintPreviewWidget::CPrintPreviewWidget(const Glib::RefPtr<Gtk::PageSetup> _refPageSetup,
+		const Glib::RefPtr<Gtk::PrintSettings> _refPrintSettings,
+		Glib::ustring &filename ) :
 	Page()
 	{
-	image_filename = "/home/bartek/Dokumenter/Biller/butzi1.jpg";
+	image_filename = filename;
+	refPageSetup = _refPageSetup;
+	refPrintSettings = _refPrintSettings;
 	
 	PagePreviewFrame.add(Page);
 	TopHBox.pack_start(PagePreviewFrame,Gtk::PACK_SHRINK);

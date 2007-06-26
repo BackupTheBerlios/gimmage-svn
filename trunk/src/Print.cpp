@@ -23,18 +23,24 @@ Copyright 2006 Bartek Kostrzewa
 
 #include "Print.h"
 
-CPrint::CPrint() {}
-
-CPrint::~CPrint() {}
-
-Glib::RefPtr<CPrint> CPrint::create()
+CPrint::CPrint( Glib::ustring filename ) 
 	{
-	return Glib::RefPtr<CPrint>(new CPrint() );
+	// nothing else can be set yet because references are still missing
+	image_filename = filename;
+	}
+
+CPrint::~CPrint() 
+	{
+	}
+
+Glib::RefPtr<CPrint> CPrint::create( Glib::ustring filename )
+	{
+	return Glib::RefPtr<CPrint>(new CPrint( filename ) );
 	}
 	
 void CPrint::on_begin_print(const Glib::RefPtr<Gtk::PrintContext>& print_context)
 	{
-	
+	std::cout << "on_begin_print\n";
 	}
 
 void CPrint::on_draw_page(const Glib::RefPtr<Gtk::PrintContext>& print_context, int page_nr)
@@ -44,10 +50,16 @@ void CPrint::on_draw_page(const Glib::RefPtr<Gtk::PrintContext>& print_context, 
 
 Gtk::Widget* CPrint::on_create_custom_widget()
 	{
+	get_print_settings()->set_orientation(Gtk::PAGE_ORIENTATION_LANDSCAPE);
+	
 	//Create a custom tab in the print dialog titled "Other"
-	set_custom_tab_label("Other");
+	set_custom_tab_label("Image Placement");
 
-	CPrintPreviewWidget *previewwidget = Gtk::manage(new CPrintPreviewWidget() );
+	// create the preview widget 
+	CPrintPreviewWidget *previewwidget = new 
+		CPrintPreviewWidget( get_default_page_setup(),
+		get_print_settings(),
+		image_filename );
 	
   /* Create a custom tab in the print dialog titled "Other"
   set_custom_tab_label("Other");

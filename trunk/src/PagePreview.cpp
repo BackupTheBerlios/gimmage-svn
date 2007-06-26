@@ -39,7 +39,7 @@ CPagePreview::~CPagePreview()
 void CPagePreview::load( Glib::ustring filename )
 	{
 	PixbufLoad( 
-		"/home/bartek/Dokumenter/Biller/butzi1.jpg",
+		filename,
 		(int)(page_width*image_width_ratio),
 		(int)(page_height*image_width_ratio) );
 	if(ImagePixbuf)

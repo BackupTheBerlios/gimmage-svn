@@ -48,7 +48,6 @@ public:
 		static int i = 1;
 		if( argc > 1 && i < argc && FileChooser.is_visible() )
 			{
-			i++;
 			if( stat(argv[i], &filemode) != 0 )
 				{
 				std::cout << "Stat Error!  " << argv[i] << std::endl;
@@ -71,14 +70,15 @@ public:
 				
 			if(filemode.st_mode & S_IFREG)
 				{
-				std::cout << "\nSetting Filechooser to: " << filename << std::endl;
-				FileChooser.set_filename( filename );
-				std::cout << "FileChooser resports: " << FileChooser.get_filename() << std::endl;
+				std::cout << "\nselecting: " << filename << std::endl;
+				FileChooser.select_filename(filename);
+				while(Gtk::Main::events_pending()) Gtk::Main::iteration();
+				std::cout << "FileChooser reports: " << FileChooser.get_filename() << std::endl;
 				}
+			i++;	
 			if( i == argc-1 )
 			  i = 1;	
 			}
-		
 		}	
 
 private:

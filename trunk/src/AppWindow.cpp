@@ -144,7 +144,9 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	ImageFilter.add_pixbuf_formats();
 	ImageFilter.set_name( GT( "Image Formats" ) );
 	FileChooser.add_filter(ImageFilter);
-	FileChooser.set_select_multiple();
+	
+	// set up the filechooser
+	FileChooser.set_select_multiple(false);
 	FileChooser.set_preview_widget( Preview );
 	FileChooser.set_preview_widget_active();
 	FileChooser.set_use_preview_label(false);
@@ -152,8 +154,9 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	
 	// connect the preview widget to the update_preview signal
 	FileChooser.signal_update_preview().connect( sigc::mem_fun(*this,&AppWindow::on_update_preview) );
+	
+	FileChooser.set_events( Gdk::ALL_EVENTS_MASK );
 		
-
 	// set up event mask for ImageBox (this doesn't really seem to work but hey... )
 	ImageBox.set_events( Gdk::ALL_EVENTS_MASK & ~Gdk::ALL_EVENTS_MASK );
 	ImageBox.add_events(  Gdk::EXPOSURE_MASK |
@@ -259,6 +262,9 @@ void AppWindow::set_buttons_active(bool active)
 
 bool AppWindow::on_button_press_event(GdkEventButton *event)
  	{
+#ifdef DEBUG
+std::cout << "ON_BUTTON_PRESS_EVENT: pressed button " << event->button << std::endl;
+#endif 	
  		switch( event->button )
  		{
  		case 1:
@@ -267,25 +273,12 @@ bool AppWindow::on_button_press_event(GdkEventButton *event)
 			ImageScroller.get_pointer(x, y);
 			dragoldx = x;
 			dragoldy = y;
-			return true;
+			return false;
 			break; //just to be sure
-			
-		// mouse wheel events are handled as buttons 4 and 5
-		// we set dragoldx and dragoldy to -999999 as a condition
-		// for drag scrolling, so we only drag scroll on mouse
-		// button 1
-		case 4:
-			on_button_next();
-			dragoldx = dragoldy = -999999;
-			return true;
-			break;
-			
-		case 5:
-			on_button_previous();
-			dragoldx = dragoldy = -999999;
-			return true;
-			break;
-		
+
+		// for other buttons, set dragoldx/dragoldy to -999999
+		// so that the cursor doesn't change and we don't drag scroll
+		// (on_button1_pressed_motion)
 		default:
 			dragoldx = dragoldy = -999999;
 			return false;
@@ -295,13 +288,22 @@ bool AppWindow::on_button_press_event(GdkEventButton *event)
 
 bool AppWindow::on_button_release_event(GdkEventButton *event)
 	{
-	#ifdef DEBUG
-	std::cout << "ON_BUTTON_RELEASE_EVENT: released! \n";
-	#endif
-		// set_cursor() sets the cursor to the parent window's cursor, which should
-		// properly handle right- and left-pointing cursors
-		ImageBox.get_window()->set_cursor();
-		return true;
+#ifdef DEBUG
+std::cout << "ON_BUTTON_RELEASE_EVENT: released button " << event->button << std::endl;
+#endif
+	switch( event->button )
+		{
+		case 1:
+			// set_cursor() sets the cursor to the parent window's cursor, which should
+			// properly handle right- and left-pointing cursors
+			ImageBox.get_window()->set_cursor();
+			return false;
+			break;
+		
+		default:
+			return false;
+			break;
+		}
 	}
 
 
@@ -317,10 +319,10 @@ bool AppWindow::on_button1_pressed_motion(GdkEventMotion *event)
 			ImageScroller.get_pointer(x, y);
 			
 #ifdef DEBUG
-std::cout << "Y = \t" << event->y << '\t';
+std::cout << "ON_BUTTON1_PRESSED_MOTION: Y = \t" << event->y << '\t';
 std::cout << "Oldy = \t" << dragoldy << std::endl;
-std::cout << "Pointer x = " << x << std::endl;
-std::cout << "Pointer y = " << y << std::endl;
+std::cout << "ON_BUTTON1_PRESSED_MOTION: Pointer x = " << x << std::endl;
+std::cout << "ON_BUTTON1_PRESSED_MOTION: Pointer y = " << y << std::endl;
 #endif // DEBUG
 	
 			if(h_scroller->get_page_size() < ImageBox.get_image_width())
@@ -358,10 +360,10 @@ std::cout << "Pointer y = " << y << std::endl;
 					v_scroller->set_value( ImageBox.get_image_height() - v_scroller->get_page_size() );
 				}
 	
-			return true;
+			return false;
 			}
 		}
-	return false;
+	return true;
 	}
 
 
@@ -481,6 +483,8 @@ void AppWindow::set_filechooser_dir(void)
 #ifdef DEBUG
 std::cout << "SET_FILECHOOSER_DIR: Before set_file_chooser_dir()\n";
 std::cout << "SET_FILECHOOSER_DIR: get_filename(): " << FileChooser.get_filename() << std::endl;
+std::cout << "SET_FILECHOOSER_DIR: get_current_folder(): " << FileChooser.get_current_folder() << std::endl;
+std::cout << "SET_FILECHOOSER_DIR: get_current_dir(): " << ImageManager.get_current_dir() << std::endl;
 std::cout << "SET_FILECHOOSER_DIR: get_current_file(): " << ImageManager.get_current_file() << std::endl;
 #endif // DEBUG
 		
@@ -494,12 +498,19 @@ std::cout << "SET_FILECHOOSER_DIR: get_current_file(): " << ImageManager.get_cur
 				else
 					path = ImageManager.get_current_file();
 
-				FileChooser.set_filename( path ); // this doesn't seem to have any effect whatsoever
+#ifdef DEBUG
+std::cout << "SET_FILECHOOSER_DIR: selecting: " << path << std::endl;
+#endif // DEBUG	
+			
+				FileChooser.select_filename(path);
+				while(Gtk::Main::events_pending()) Gtk::Main::iteration();
 
 #ifdef DEBUG
 std::cout << "SET_FILECHOOSER_DIR: After set_file_chooser_dir()\n";
 std::cout << "SET_FILECHOOSER_DIR: get_filename(): " << FileChooser.get_filename() << std::endl;
 std::cout << "SET_FILECHOOSER_DIR: get_current_file(): " << ImageManager.get_current_file() << std::endl;
+std::cout << "SET_FILECHOOSER_DIR: get_current_folder(): " << FileChooser.get_current_folder() << std::endl;
+std::cout << "SET_FILECHOOSER_DIR: get_current_dir(): " << ImageManager.get_current_dir() << std::endl;
 std::cout << "SET_FILECHOOSER_DIR: path: " << path << std::endl;
 #endif // DEBUG
 
@@ -727,26 +738,27 @@ void AppWindow::on_button_print(void)
 	{
 		print(Gtk::PRINT_OPERATION_ACTION_PRINT_DIALOG);
 	}
-	
-void AppWindow::print(Gtk::PrintOperationAction print_action)
+
+// printing system not complete yet	
+ void AppWindow::print(Gtk::PrintOperationAction print_action)
 	{
-	Glib::RefPtr<CPrint> print = CPrint::create();
+	Glib::RefPtr<CPrint> refprint = CPrint::create( ImageManager.get_current_file());
 	
-	print->set_track_print_status();
-	print->set_default_page_setup(refPageSetup);
-	print->set_print_settings(refPrintSettings);
-	
+	refprint->set_track_print_status();
+	refprint->set_default_page_setup( refPageSetup );
+	refprint->set_print_settings( refPrintSettings );
+		
 	//connect to print done
 	
 	try
 		{
-		print->run(print_action, *this);
+		refprint->run(print_action, *this);
 		}
 	catch(const Gtk::PrintError& error)
 		{
 		std::cerr << "An error occured while trying to run print(): " << error.what() << std::endl; 
 		}
-	}	
+	}
 
 /* hide() destroys the underlying GObject (i think), so we'd like to use 
    resize instead, otherwise the filechooser is not updated
@@ -785,7 +797,7 @@ bool AppWindow::on_delete_event( GdkEventAny *event )
 	return true;
 	}
 
-	// arrows don't work, KP arrows work
+
 bool AppWindow::on_key_press_event(GdkEventKey * key)
 	{
 	int increment = 20;
@@ -793,6 +805,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 	switch( key->keyval )
 		{
 		case GDK_Tab:
+			return true;
 			break;
 			
 		case GDK_Escape:
@@ -800,6 +813,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			std::cout << "KEY_EVENT: Escape was pressed. Quitting... \n";
 			#endif
 			Button_Quit.activate();
+			return true;
 			break;
 			
 		case GDK_BackSpace:
@@ -808,7 +822,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			#endif
 			if( Button_Previous.is_sensitive() )
 				Button_Previous.activate();
-			return false;
+			return true;
 			break;
 			
 		//case GDK_KP_Space:
@@ -818,6 +832,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			#endif
 			if( Button_Next.is_sensitive() )
 				Button_Next.activate();
+			return true;
 			break;
 			
 		case GDK_KP_Add:
@@ -827,6 +842,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			#endif
 			if( Button_ZoomIn.is_sensitive() )
 				Button_ZoomIn.activate();
+			return true;
 			break;
 			
 		case GDK_KP_Subtract:
@@ -836,6 +852,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			#endif
 			if( Button_ZoomOut.is_sensitive() )
 				Button_ZoomOut.activate();
+			return true;
 			break;
 			
 		case GDK_Left:	
@@ -851,7 +868,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 				else // subtract the few pixels that are missing
 					h_scroller->set_value(0);
 				}
-			return false;
+			return true;
 			break;
 			
 		case GDK_Right:	
@@ -869,6 +886,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 					h_scroller->set_value( 	ImageBox.get_image_width() -
 											h_scroller->get_page_size() );
 				}
+			return true;
 			break;
 			
 		case GDK_KP_Down:
@@ -886,6 +904,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 					v_scroller->set_value( 	ImageBox.get_image_height() -
 										v_scroller->get_page_size() );
 				}
+			return true;
 			break;
 			
 		case GDK_KP_Up:
@@ -901,6 +920,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 				else // subtract the missing bit
 					v_scroller->set_value(0);
 				}
+			return true;
 			break; //*/
 			
 		case GDK_s:
@@ -910,6 +930,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			#endif
 			if( Button_Save.is_sensitive() )
 				Button_Save.activate();
+			return true;
 			break;
 			
 		case GDK_1:
@@ -919,6 +940,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			#endif
 			if( Button_Zoom1to1.is_sensitive() )
 				Button_Zoom1to1.activate();
+			return true;
 			break;
 			
 		case GDK_A:
@@ -928,6 +950,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			#endif
 			if( Button_RotateAntiClockwise.is_sensitive() )
 				Button_RotateAntiClockwise.activate();
+			return true;
 			break;
 			
 		case GDK_c:
@@ -937,6 +960,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			#endif
 			if( Button_RotateClockwise.is_sensitive() )
 				Button_RotateClockwise.activate();
+			return true;
 			break;
 
 		case GDK_p:
@@ -944,6 +968,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			#ifdef DEBUG
 			std::cout << "KEY_EVENT: P was pressed. \n";
 			#endif
+			return true;
 			break; // no printing yet!
 
 		case GDK_f:
@@ -953,6 +978,7 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			#endif
 			ToggleButton_ShowFileChooser.get_active() ? 
 			    ToggleButton_ShowFileChooser.set_active( false ) : ToggleButton_ShowFileChooser.set_active( true );
+			return true;
 			break;
 
 		// i find this confusing, not sure what other people think!
@@ -962,15 +988,17 @@ bool AppWindow::on_key_press_event(GdkEventKey * key)
 			std::cout << "KEY_EVENT: H was pressed. \n";
 			#endif
 			NavButtonHBox.is_visible() ? NavButtonHBox.hide() : NavButtonHBox.show();
+			return true;
 			break; // */
 		
 		default:
-			return false;
+			#ifdef DEBUG
+			std::cout << "KEY_EVENT: " << key->keyval << std::endl;
+			#endif	
+			return true;
 			break;
 		}
-	return true;
 	}
-
 
 // loads the configuration file $HOME/.gimmagerc
 void AppWindow::load_config(void)

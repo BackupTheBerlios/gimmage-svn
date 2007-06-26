@@ -1,4 +1,12 @@
 BUGS 
+The filechooser selects random files after it has been hidden once when in a
+gnome session. I believe this is a bug in the filechooser widget.
+
+When not in a gnome session, making the filechooser select a file is
+EXTREMELY slow (1-2 seconds?!), so progressing from one image to the next
+takes absolute ages when the filechooser is open. This is not the case in
+gnome mode where it remains quick.
+
 	
 TODO
 -add print support!! (could use some help on this one)

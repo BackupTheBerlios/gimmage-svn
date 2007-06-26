@@ -22,6 +22,7 @@ Copyright 2006 Bartek Kostrzewa
 #include <gtkmm/box.h>
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/frame.h>
+#include <gtkmm/printoperation.h>
 #include <iostream>
 
 #include "PagePreview.h"
@@ -29,13 +30,20 @@ Copyright 2006 Bartek Kostrzewa
 class CPrintPreviewWidget : public Gtk::VBox
 {
 public:
-	CPrintPreviewWidget();
+	// needs to take all relevant data at time 
+	CPrintPreviewWidget( const Glib::RefPtr<Gtk::PageSetup>,
+		const Glib::RefPtr<Gtk::PrintSettings>,
+		Glib::ustring& );
+		
 	~CPrintPreviewWidget();
 	
 	void set_image_filename( Glib::ustring );
 	Glib::ustring& get_image_filename();
 	
 protected:
+	Glib::RefPtr<Gtk::PageSetup> refPageSetup;
+	Glib::RefPtr<Gtk::PrintSettings> refPrintSettings;
+
 	Glib::ustring image_filename;
 	CPagePreview	Page;
 	

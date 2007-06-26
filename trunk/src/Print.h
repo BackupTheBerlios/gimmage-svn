@@ -27,17 +27,19 @@ Copyright 2006 Bartek Kostrzewa
 class CPrint : public Gtk::PrintOperation
 {
 public:
-	static Glib::RefPtr<CPrint> create();
+	static Glib::RefPtr<CPrint> create( Glib::ustring );
 	virtual ~CPrint();
 
 protected:
-	CPrint();
+	CPrint( Glib::ustring );
 	virtual void on_begin_print( const Glib::RefPtr<Gtk::PrintContext>& context );
 	virtual void on_draw_page( const Glib::RefPtr<Gtk::PrintContext>& context, int page_nr );
 
 	// Custom tab for preview page
 	virtual Gtk::Widget* on_create_custom_widget();
 	virtual void on_custom_widget_apply(Gtk::Widget* widget); // */
+	
+	Glib::ustring image_filename;
 
 	Glib::RefPtr<Pango::Layout> m_refLayout;
 };
