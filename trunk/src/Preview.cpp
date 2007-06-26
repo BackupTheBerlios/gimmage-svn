@@ -17,38 +17,93 @@ Copyright 2006 Bartek Kostrzewa
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
     USA   */
 
-// gimmage: PagePreview.cpp
+// gimmage: Preview.cpp
 
-#include "PagePreview.h"
+#include "Preview.h"
 
-CPagePreview::CPagePreview()
+CPreview::CPreview()
 	{
-	page_width = 200;
-	page_height = 300;
-	image_width_ratio = 0.5;
-	image_height_ratio = 0.5;
-	
-	set_size_request(200,300);
+	// no need to waste space if we are not loaded
+	if( !ImagePixbuf ) 
+		set_size_request(0,0);
 	}
 	
-CPagePreview::~CPagePreview() {}
-
-void CPagePreview::load( Glib::ustring filename )
+CPreview::~CPreview() 
 	{
-	ImagePixbuf = Gdk::Pixbuf::create_from_file( 
-		"/home/bartek/Dokumenter/Biller/butzi1.jpg",
-		(int)(page_width*image_width_ratio),
-		(int)(page_height*image_width_ratio) );
-	if(ImagePixbuf)
-		std::cout << "Yes, there's something \n";
+	ImagePixbuf.clear();
+	}
+
+
+// cause a new image to be loaded
+void CPreview::load( Glib::ustring filename, bool loadable )
+	{
+	if( !loadable )
+		{
+		set_size_request(0,0);
+		ImagePixbuf.clear();
+		
+		// force a redraw
+		Glib::RefPtr<Gdk::Window> window = get_window();
+		if (window)
+			{
+			Gdk::Rectangle r(0, 0, get_allocation().get_width(),
+					get_allocation().get_height());
+			window->invalidate_rect(r, false);
+			}
+		return;
+		}
+
 	else
-		std::cout << "ney, empty \n";	
+		{
+		set_size_request( 100,100 );	
+		int width;
+		int height;
+		
+
+		get_size_request( width, height );
+		
+		// we don't have any padding so let's add a little something
+		width *= 0.98;
+		height *= 0.98;	
+				
+		PixbufLoad( filename, width, height );
+			
+
+		// force a redraw
+		Glib::RefPtr<Gdk::Window> window = get_window();
+		if (window)
+			{
+			Gdk::Rectangle r(0, 0, get_allocation().get_width(),
+					get_allocation().get_height());
+			window->invalidate_rect(r, false);
+			}
+		}
 	}
 
-bool CPagePreview::on_expose_event(GdkEventExpose *event)
+
+// do the actual file loading	
+void CPreview::PixbufLoad( Glib::ustring filename, int width, int height )
 	{
-	std::cout << "Fired!\n";
-			
+	try
+		{
+		ImagePixbuf.clear();
+		ImagePixbuf = Gdk::Pixbuf::create_from_file( 
+			filename,
+			width,
+			height );
+		}
+	catch(Gdk::PixbufError & error)
+		{
+			std::cerr << "PIXBUFLOAD: PixbufError\n";
+		}
+	catch(Glib::FileError & error)
+		{
+			std::cerr << "PIXBUFLOAD: FileError\n";
+		}
+	}
+
+bool CPreview::on_expose_event(GdkEventExpose *event)
+	{			
 	Glib::RefPtr<Gdk::Window> window = get_window();
 	if(window)
 		{
@@ -70,46 +125,41 @@ bool CPagePreview::on_expose_event(GdkEventExpose *event)
 				event->area.width, event->area.height);
 		cr->clip();
 		
-		double border = 0.05;
 		double offset = 4.0;
 		
-		// draw a neat shadow
-		cr->set_source_rgba(0.0,0.0,0.0,0.4);
-		cr->begin_new_path();
-		cr->move_to( width*border+offset,height*border+offset );
-		cr->line_to( width*(1.0-border)+offset,height*border+offset );
-		cr->line_to( width*(1.0-border)+offset,height*(1.0-border)+offset );
-		cr->line_to( width*border+offset,height*(1.0-border)+offset );
-		cr->close_path();
-		cr->fill();
-
-		// draw the page outline
-		cr->set_source_rgb(0.0,0.0,0.0); // black
-		cr->set_line_width( 1.0 );
-		cr->begin_new_sub_path();
-		cr->move_to( width*border,height*border );
-		cr->line_to( width*(1.0-border),height*border );
-		cr->line_to( width*(1.0-border),height*(1.0-border) );
-		cr->line_to( width*border,height*(1.0-border) );
-		cr->close_path();
-		cr->stroke_preserve();
 		
-		// fill the page with white
-		cr->save();
-		cr->set_source_rgb(1.0,1.0,1.0); // white
-		cr->fill_preserve();
-		cr->restore();
+		//drawing a shadow is mighty cool, but it wastes screen real estate
+		/* draw a neat shadow
+		cr->set_source_rgba(0.0,0.0,0.0,0.6);
+		cr->begin_new_path();
+		cr->move_to( (width-ImagePixbuf->get_width())/2+offset,
+			(height-ImagePixbuf->get_height())/2+offset );
+		
+		cr->line_to( (width+ImagePixbuf->get_width())/2+offset,
+			(height-ImagePixbuf->get_height())/2+offset );
+		
+		cr->line_to( (width+ImagePixbuf->get_width())/2+offset,
+			(height+ImagePixbuf->get_height())/2+offset );
+		
+		cr->line_to( (width-ImagePixbuf->get_width())/2+offset,
+			(height+ImagePixbuf->get_height())/2+offset );
+			
+		cr->close_path();
+		cr->fill(); // */
 
-		// and the image preview
-		ImagePixbuf->render_to_drawable( get_window(),
-									get_style()->get_black_gc(),
-									0,
-									0,
-									(width-ImagePixbuf->get_width())/2,
-									(height-ImagePixbuf->get_height())/2,
-									ImagePixbuf->get_width(), //image->get_width(),
-									ImagePixbuf->get_height(), //image->get_height(),
-									Gdk::RGB_DITHER_NONE,0,0 ); // */
+		// and the image preview, but only if the image is loaded
+		if( ImagePixbuf )
+			{
+			ImagePixbuf->render_to_drawable( get_window(),
+										get_style()->get_black_gc(),
+										0,
+										0,
+										(width-ImagePixbuf->get_width())/2,
+										(height-ImagePixbuf->get_height())/2,
+										ImagePixbuf->get_width(), //image->get_width(),
+										ImagePixbuf->get_height(), //image->get_height(),
+										Gdk::RGB_DITHER_NONE,0,0 ); // */
+			}
 									
 		return true;
 		}

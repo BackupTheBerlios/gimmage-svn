@@ -23,3 +23,56 @@ Copyright 2006 Bartek Kostrzewa
 
 #include "Print.h"
 
+CPrint::CPrint() {}
+
+CPrint::~CPrint() {}
+
+Glib::RefPtr<CPrint> CPrint::create()
+	{
+	return Glib::RefPtr<CPrint>(new CPrint() );
+	}
+	
+void CPrint::on_begin_print(const Glib::RefPtr<Gtk::PrintContext>& print_context)
+	{
+	
+	}
+
+void CPrint::on_draw_page(const Glib::RefPtr<Gtk::PrintContext>& print_context, int page_nr)
+	{
+	}
+
+
+Gtk::Widget* CPrint::on_create_custom_widget()
+	{
+	//Create a custom tab in the print dialog titled "Other"
+	set_custom_tab_label("Other");
+
+	CPrintPreviewWidget *previewwidget = Gtk::manage(new CPrintPreviewWidget() );
+	
+  /* Create a custom tab in the print dialog titled "Other"
+  set_custom_tab_label("Other");
+
+  Gtk::VBox* vbox = Gtk::manage(new Gtk::VBox());
+  vbox->set_border_width(12);
+
+  Gtk::HBox* hbox = Gtk::manage(new Gtk::HBox(false, 8));
+  vbox->pack_start(*hbox, false, false);
+  hbox->set_border_width(6);
+  hbox->show();
+
+  Gtk::Label* label = Gtk::manage(new Gtk::Label("Choose a font: "));
+  hbox->pack_start(*label, false, false);
+  label->show();
+
+  m_FontButton.set_font_name(m_Font);
+  hbox->pack_start(m_FontButton, false, false);
+  m_FontButton.show();
+
+  return vbox;	// */
+
+	return previewwidget;
+	}
+	
+void CPrint::on_custom_widget_apply(Gtk::Widget* widget)
+	{
+	}

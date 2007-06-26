@@ -1,8 +1,13 @@
-22.06.07 - 0.2.3
+25.06.07 - 0.2.3
 -Add command line --help (finally!)
 -Make save button sensitive only if the image format is supported for saving
 -Add resolver for ".." in filenames.
--Fix Filechooser Selection bug! (kinda)
+-Correctly fit the image to the viewing area.
+-Add additional busy cursor during next/previous operations.
+-Limit drag scrolling to the first mouse button.
+-Snap to end properly in drag scrolling operations.
+-Properly handle cursors for left-handed people.
+-Add scrolling using arrowkeys.
 
 16.06.07 - 0.2.2
 -Minor rewrites of some sections

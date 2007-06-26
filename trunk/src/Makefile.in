@@ -49,7 +49,9 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_gimmage_OBJECTS = AppWindow.$(OBJEXT) FileManager.$(OBJEXT) \
+am_gimmage_OBJECTS = AppWindow.$(OBJEXT) Print.$(OBJEXT) \
+	PrintPreviewWidget.$(OBJEXT) PagePreview.$(OBJEXT) \
+	Preview.$(OBJEXT) FileManager.$(OBJEXT) \
 	ImageEventBox.$(OBJEXT) SaveDialog.$(OBJEXT) \
 	SaveErrorDialog.$(OBJEXT) main.$(OBJEXT)
 gimmage_OBJECTS = $(am_gimmage_OBJECTS)
@@ -188,6 +190,10 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 gimmage_SOURCES = AppWindow.cpp AppWindow.h \
+Print.cpp Print.h \
+PrintPreviewWidget.cpp PrintPreviewWidget.h \
+PagePreview.cpp PagePreview.h \
+Preview.cpp Preview.h \
 FileManager.cpp FileManager.h \
 ImageEventBox.cpp ImageEventBox.h \
 SaveDialog.cpp SaveDialog.h \
@@ -265,6 +271,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AppWindow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/FileManager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ImageEventBox.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PagePreview.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Preview.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Print.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PrintPreviewWidget.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SaveDialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SaveErrorDialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@

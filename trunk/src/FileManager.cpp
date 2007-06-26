@@ -69,24 +69,25 @@ FileManager::~FileManager()
 	
 bool FileManager::OpenFiles(int argc, char **argv)
 	{
-	#ifdef DEBUG
-	std::cout << "OPENFILES: OpenFiles called \n";
-	#endif // DEBUG
+#ifdef DEBUG
+std::cout << "OPENFILES: OpenFiles called \n";
+#endif // DEBUG
 
 	
 	//	if we have initialised already we're being called from the file selector and will
 	//	accept new files now, let's set initialised and cwd_checked to 'false' and clear our file list
 	if( initialised == true )
-	{
-	filenames.erase(filenames.begin(), filenames.end());
-	numfiles = 0;
-	cwd_checked = false;
-	initialised = false;
-	}
-	#ifdef DEBUG
-	std::cout << "OPENFILES: OpenFiles called \n";
-	std::cout << "OPENFILES: get_current_dir_name(): " << get_current_dir_name() << std::endl;
-	#endif // DEBUG
+		{
+		filenames.erase(filenames.begin(), filenames.end());
+		numfiles = 0;
+		cwd_checked = false;
+		initialised = false;
+		}
+		
+#ifdef DEBUG
+std::cout << "OPENFILES: OpenFiles called \n";
+std::cout << "OPENFILES: get_current_dir_name(): " << get_current_dir_name() << std::endl;
+#endif // DEBUG
 		
 	if( argc > 1 )
 		{
@@ -485,7 +486,7 @@ Glib::ustring FileManager::get_current_dir(void)
 	if( initialised )
 		return ( Glib::path_get_dirname( *file_iterator ) );
 	else
-		return( Glib::get_home_dir() );
+		return( (Glib::ustring)"" );
 }
 
 

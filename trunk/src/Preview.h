@@ -26,25 +26,20 @@ Copyright 2006 Bartek Kostrzewa
 #include <gtkmm/eventbox.h>
 #include <cairomm/cairomm.h>
 
-class CPagePreview : public Gtk::DrawingArea
+class CPreview : public Gtk::DrawingArea
 {
 public:
-	CPagePreview();
-	~CPagePreview();
-	void load( Glib::ustring );
+	CPreview();
+	~CPreview();
+	void load( Glib::ustring, bool );
 		
 protected:
 	Glib::RefPtr<Gdk::Pixbuf> ImagePixbuf;
 	
 	virtual bool on_expose_event(GdkEventExpose*);
+	
+	void PixbufLoad( Glib::ustring,int,int );
 
 	
 private:
-	int page_width;
-	int page_height;
-	double image_width_ratio;
-	double image_height_ratio;
-	
-	int xpos;
-	int ypos;	
 };

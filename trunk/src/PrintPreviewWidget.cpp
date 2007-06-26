@@ -36,6 +36,8 @@ CPrintPreviewWidget::CPrintPreviewWidget() :
 	pack_start(HButtonBox,Gtk::PACK_SHRINK);
 	
 	Page.load( image_filename );
+	
+	show_all_children();
 	}
 	
 CPrintPreviewWidget::~CPrintPreviewWidget() {}

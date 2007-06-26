@@ -3,6 +3,13 @@ BUGS
 TODO
 -add print support!! (could use some help on this one)
 -add "all files" filefilter to filechooser
--better zooming and rotation
+-better zooming and rotation --> see below
 -add image counter to titlebar
+
+ImageEventBox rewrite
+
+rewrite the EventBox as a drawing area and redraw only the currently visible bit for performance
+reasons. Further, preload the next and previous images for speed. This will massively speed up image
+loading time and any operations such as rotate and zoom. It will make drag scrolling a tiny bit
+slower.
 

@@ -29,7 +29,7 @@ dnl Checks for programs.
 AC_PROG_CXX
 
 dnl Checks for libraries.
-PKG_CHECK_MODULES(DEPS, gtkmm-2.4)
+PKG_CHECK_MODULES(DEPS, gtkmm-2.4, cairomm-1.0)
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 

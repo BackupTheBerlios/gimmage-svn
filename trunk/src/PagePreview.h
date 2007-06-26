@@ -37,7 +37,8 @@ protected:
 	Glib::RefPtr<Gdk::Pixbuf> ImagePixbuf;
 	
 	virtual bool on_expose_event(GdkEventExpose*);
-
+	
+	void PixbufLoad( Glib::ustring filename, int width, int height );
 	
 private:
 	int page_width;

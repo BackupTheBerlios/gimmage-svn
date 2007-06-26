@@ -23,19 +23,22 @@ Copyright 2006 Bartek Kostrzewa
 
 CPagePreview::CPagePreview()
 	{
-	page_width = 200;
-	page_height = 300;
+	page_width = 120;
+	page_height = 180;
 	image_width_ratio = 0.5;
 	image_height_ratio = 0.5;
 	
-	set_size_request(200,300);
+	set_size_request(120,180);
 	}
 	
-CPagePreview::~CPagePreview() {}
+CPagePreview::~CPagePreview()
+	{
+	ImagePixbuf.clear();
+	}
 
 void CPagePreview::load( Glib::ustring filename )
 	{
-	ImagePixbuf = Gdk::Pixbuf::create_from_file( 
+	PixbufLoad( 
 		"/home/bartek/Dokumenter/Biller/butzi1.jpg",
 		(int)(page_width*image_width_ratio),
 		(int)(page_height*image_width_ratio) );
@@ -44,6 +47,27 @@ void CPagePreview::load( Glib::ustring filename )
 	else
 		std::cout << "ney, empty \n";	
 	}
+	
+// do the actual file loading	
+void CPagePreview::PixbufLoad( Glib::ustring filename, int width, int height )
+	{
+	try
+		{
+		ImagePixbuf.clear();
+		ImagePixbuf = Gdk::Pixbuf::create_from_file( 
+			filename,
+			width,
+			height );
+		}
+	catch(Gdk::PixbufError & error)
+		{
+			std::cerr << "PIXBUFLOAD: PixbufError\n";
+		}
+	catch(Glib::FileError & error)
+		{
+			std::cerr << "PIXBUFLOAD: FileError\n";
+		}
+	}	
 
 bool CPagePreview::on_expose_event(GdkEventExpose *event)
 	{
@@ -71,7 +95,7 @@ bool CPagePreview::on_expose_event(GdkEventExpose *event)
 		cr->clip();
 		
 		double border = 0.05;
-		double offset = 4.0;
+		double offset = 2.0;
 		
 		// draw a neat shadow
 		cr->set_source_rgba(0.0,0.0,0.0,0.4);
@@ -87,10 +111,10 @@ bool CPagePreview::on_expose_event(GdkEventExpose *event)
 		cr->set_source_rgb(0.0,0.0,0.0); // black
 		cr->set_line_width( 1.0 );
 		cr->begin_new_sub_path();
-		cr->move_to( width*border,height*border );
-		cr->line_to( width*(1.0-border),height*border );
-		cr->line_to( width*(1.0-border),height*(1.0-border) );
-		cr->line_to( width*border,height*(1.0-border) );
+		cr->move_to( width*border-offset,height*border-offset );
+		cr->line_to( width*(1.0-border)-offset,height*border-offset );
+		cr->line_to( width*(1.0-border)-offset,height*(1.0-border)-offset );
+		cr->line_to( width*border-offset,height*(1.0-border)-offset );
 		cr->close_path();
 		cr->stroke_preserve();
 		

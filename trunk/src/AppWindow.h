@@ -38,6 +38,11 @@ Copyright 2006 Bartek Kostrzewa
 
 #include "ImageEventBox.h"
 #include "FileManager.h"
+
+#include "Preview.h"
+
+#include "Print.h"
+
 #include "SaveDialog.h"
 #include "SaveErrorDialog.h"
 
@@ -77,6 +82,7 @@ class AppWindow : public Gtk::Window
 	
 	// filechooser to let the user choose files!
 		Gtk::FileChooserWidget FileChooser;
+		CPreview Preview;
 		Gtk::FileFilter	ImageFilter;
 		FileManager ImageManager;
 
@@ -134,6 +140,11 @@ class AppWindow : public Gtk::Window
 		// indicate we're busy
 		void busy(bool);
 		Gdk::Cursor Hand, Watch;
+		
+		// printing system	
+		void print(Gtk::PrintOperationAction print_action);
+		Glib::RefPtr<Gtk::PageSetup> refPageSetup;
+		Glib::RefPtr<Gtk::PrintSettings> refPrintSettings;
 	
 	// Event Handlers
 	   		
@@ -181,6 +192,7 @@ class AppWindow : public Gtk::Window
 		// load the file when we activate it in the filechooser
 		virtual void on_file_activated(void);
 		virtual void open_new_file( Glib::ustring );
+		virtual void on_update_preview(void);
 
 		// let's catch some key presses in order to make the app key-operable
 		virtual bool on_key_press_event(GdkEventKey * key);

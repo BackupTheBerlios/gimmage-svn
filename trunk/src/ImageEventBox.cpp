@@ -33,9 +33,10 @@ ImageEventBox::ImageEventBox() :
 	Image()
 	{
 	// place the image in the image alignment and that in the eventbox
-	set_visible_window(false);
-	set_above_child(false);
+	//set_visible_window(true);
+	//set_above_child(true);
 	add(Image);
+	show_all_children();
 	loaded = false;
 	}
 

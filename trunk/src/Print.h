@@ -22,21 +22,22 @@ Copyright 2006 Bartek Kostrzewa
 #include <pangomm.h>
 #include <gtkmm/printoperation.h>
 
+#include "PrintPreviewWidget.h"
+
 class CPrint : public Gtk::PrintOperation
 {
 public:
-	static Glib::RefPtr<PrintFormOperation> create();
-	CPrint();
+	static Glib::RefPtr<CPrint> create();
 	virtual ~CPrint();
 
 protected:
-
+	CPrint();
 	virtual void on_begin_print( const Glib::RefPtr<Gtk::PrintContext>& context );
-	virtual void on_draw_page( const Glib::RefPtr<Gtk::PrintContext<& context, int page_nr );
+	virtual void on_draw_page( const Glib::RefPtr<Gtk::PrintContext>& context, int page_nr );
 
 	// Custom tab for preview page
 	virtual Gtk::Widget* on_create_custom_widget();
-	virtual void on_custom_widget_apply(Gtk::Widget* widget);
+	virtual void on_custom_widget_apply(Gtk::Widget* widget); // */
 
 	Glib::RefPtr<Pango::Layout> m_refLayout;
 };
