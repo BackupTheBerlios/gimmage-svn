@@ -56,7 +56,7 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	I_Button_Print(Gtk::StockID("gtk-print"), Gtk::IconSize(1)),
 	I_ToggleButton_ShowFileChooser(Gtk::StockID("gtk-find"), Gtk::IconSize(1)),
 	I_Button_Quit(Gtk::StockID("gtk-quit"), Gtk::IconSize(1))
-	{
+	{	
 	// initialise printing system
 	refPageSetup = Gtk::PageSetup::create();
 	refPrintSettings = Gtk::PrintSettings::create();
@@ -742,13 +742,16 @@ void AppWindow::on_button_print(void)
 // printing system not complete yet	
  void AppWindow::print(Gtk::PrintOperationAction print_action)
 	{
-	Glib::RefPtr<CPrint> refprint = CPrint::create( ImageManager.get_current_file());
+	Glib::RefPtr<CPrintOperation> refprint = CPrintOperation::create( 
+		ImageManager.get_current_file(),
+		ImageManager.get_file_list() );
 	
 	refprint->set_track_print_status();
 	refprint->set_default_page_setup( refPageSetup );
 	refprint->set_print_settings( refPrintSettings );
 		
 	//connect to print done
+	refprint->signal_done().connect(sigc::bind(sigc::mem_fun(*this, &AppWindow::on_print_done), &refprint));
 	
 	try
 		{
@@ -758,6 +761,10 @@ void AppWindow::on_button_print(void)
 		{
 		std::cerr << "An error occured while trying to run print(): " << error.what() << std::endl; 
 		}
+	}
+	
+void AppWindow::on_print_done(Gtk::PrintOperationResult result, Glib::RefPtr<CPrintOperation>* operation)
+	{
 	}
 
 /* hide() destroys the underlying GObject (i think), so we'd like to use 

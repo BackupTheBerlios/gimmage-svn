@@ -124,8 +124,11 @@ int main(int argc, char *argv[])
 	Glib::OptionContext options( "[dirname] ... [filename]"
 				"\n\n  gimmage will scan directories given up to one level deep\n"
 				"  and add any filenames given to its list of images to be displayed\n\n"
-				"    example: gimmage file1 file2 dir1 dir2\n\n"
-				"  will display all images in dir1 and dir2 and file1 and file2\n" );
+				"    example 1: gimmage file1 file2 dir1 dir2\n\n"
+				"  will display all images in dir1 and dir2 and file1 and file2\n\n"
+				"    example 2: gimmage file1\n\n" 
+				"  will display file1 and load all other images in file1's directory\n"
+				"  into the image list\n" );
 
 	Gtk::Main kit(argc,argv,options);
 

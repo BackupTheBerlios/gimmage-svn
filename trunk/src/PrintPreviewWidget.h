@@ -19,13 +19,34 @@ Copyright 2006 Bartek Kostrzewa
 
 // gimmage: PrintPreviewWidget.h
 
+#include <iostream>
+
+#include <gdkmm/pixbuf.h>
+
+#include <gtkmm/printoperation.h>
+
+#include <gtkmm/scrolledwindow.h>
 #include <gtkmm/box.h>
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/frame.h>
-#include <gtkmm/printoperation.h>
-#include <iostream>
+#include <gtkmm/iconview.h>
+
+#include <gtkmm/liststore.h>
+#include <gtkmm/treemodel.h>
+
 
 #include "PagePreview.h"
+
+// the tree model for the iconview in the preview widget
+class CImageListColumns : public Gtk::TreeModelColumnRecord
+{
+public:
+	CImageListColumns()
+		{ add(filenames_column); add(thumbnails_column); }
+
+	Gtk::TreeModelColumn<Glib::ustring> filenames_column;
+	Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> > thumbnails_column;
+};
 
 class CPrintPreviewWidget : public Gtk::VBox
 {
@@ -33,17 +54,20 @@ public:
 	// needs to take all relevant data at time 
 	CPrintPreviewWidget( const Glib::RefPtr<Gtk::PageSetup>,
 		const Glib::RefPtr<Gtk::PrintSettings>,
-		Glib::ustring& );
+		Glib::ustring&,
+		std::list<Glib::ustring>& );
 		
 	~CPrintPreviewWidget();
 	
-	void set_image_filename( Glib::ustring );
 	Glib::ustring& get_image_filename();
 	
 protected:
+	void populate_iconview();
+
 	Glib::RefPtr<Gtk::PageSetup> refPageSetup;
 	Glib::RefPtr<Gtk::PrintSettings> refPrintSettings;
 
+	std::list<Glib::ustring> image_filenames;
 	Glib::ustring image_filename;
 	CPagePreview	Page;
 	
@@ -52,7 +76,13 @@ protected:
 	
 	Gtk::Frame	PagePreviewFrame;
 	Gtk::Frame	PageSettingsFrame;
-	Gtk::Frame	ImageListFrame;
+	Gtk::Frame  ImageListFrame;
+	
+	Gtk::ScrolledWindow	ImageListScroller;
+	
+	CImageListColumns ImageListColumns;
+	Glib::RefPtr<Gtk::ListStore> refImageList;
+	Gtk::IconView ImageIconView;
 
 private:
 

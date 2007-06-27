@@ -41,7 +41,7 @@ Copyright 2006 Bartek Kostrzewa
 
 #include "Preview.h"
 
-#include "Print.h"
+#include "PrintOperation.h"
 
 #include "SaveDialog.h"
 #include "SaveErrorDialog.h"
@@ -143,6 +143,9 @@ class AppWindow : public Gtk::Window
 		
 		// printing system	
 		void print(Gtk::PrintOperationAction print_action);
+		void on_print_done(Gtk::PrintOperationResult,
+			Glib::RefPtr<CPrintOperation>* );
+			
 		Glib::RefPtr<Gtk::PageSetup> refPageSetup;
 		Glib::RefPtr<Gtk::PrintSettings> refPrintSettings;
 	

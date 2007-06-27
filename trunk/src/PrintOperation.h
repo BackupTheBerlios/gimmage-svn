@@ -17,21 +17,24 @@ Copyright 2006 Bartek Kostrzewa
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
     USA   */
 
-// gimmage: Print.h
+// gimmage: PrintOperation.h
 
 #include <pangomm.h>
 #include <gtkmm/printoperation.h>
 
 #include "PrintPreviewWidget.h"
 
-class CPrint : public Gtk::PrintOperation
+class CPrintOperation : public Gtk::PrintOperation
 {
 public:
-	static Glib::RefPtr<CPrint> create( Glib::ustring );
-	virtual ~CPrint();
+	static Glib::RefPtr<CPrintOperation> create( Glib::ustring , std::list<Glib::ustring> );
+	virtual ~CPrintOperation();
 
 protected:
-	CPrint( Glib::ustring );
+	// pointer to the preview widget
+	CPrintPreviewWidget *previewwidget;
+
+	CPrintOperation( Glib::ustring, std::list<Glib::ustring> );
 	virtual void on_begin_print( const Glib::RefPtr<Gtk::PrintContext>& context );
 	virtual void on_draw_page( const Glib::RefPtr<Gtk::PrintContext>& context, int page_nr );
 
@@ -40,6 +43,7 @@ protected:
 	virtual void on_custom_widget_apply(Gtk::Widget* widget); // */
 	
 	Glib::ustring image_filename;
+	std::list<Glib::ustring> image_filenames;
 
 	Glib::RefPtr<Pango::Layout> m_refLayout;
 };

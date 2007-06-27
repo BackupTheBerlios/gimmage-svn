@@ -193,7 +193,9 @@ std::cout << "OPENFILES: get_current_dir_name(): " << get_current_dir_name() << 
 				std::cout << "OPENFILES: Looking for " << tempfilename << " in " << (*file_iterator) << std::endl;
 				#endif
 				if( (*file_iterator).find( tempfilename ) != Glib::ustring::npos )
+					{
 					break; // break out of the while loop if we find the filename
+					}
 				file_iterator++;
 				}
 			// when we have reached the end while looking, let's just load the first image!
@@ -283,6 +285,7 @@ Glib::ustring FileManager::get_first_file()
 	return *file_iterator;
 	}
 
+// returns the next filename in the list AND advances the iterator
 Glib::ustring FileManager::get_next_file()
 	{
 	if( !initialised )
@@ -352,7 +355,6 @@ Glib::ustring FileManager::get_next_file()
 			get_next_file(); // when we're at the end, recurse
 		return *file_iterator;
 		}
-
 	}
 
 Glib::ustring FileManager::get_previous_file()
@@ -525,9 +527,15 @@ Glib::ustring FileManager::filter_save_filename(Glib::ustring filename)
 // DEBUG if you're ever wondering what we have stored!		
 void FileManager::showfiles(void)
 	{
-	while(file_iterator != filenames.end())
+	std::list<Glib::ustring>::iterator temp = filenames.begin();
+	while(temp != filenames.end())
 		{
-		std::cout << *file_iterator << std::endl;
-		file_iterator++;
+		std::cout << *temp << std::endl;
+		temp++;
 		}
 	}
+	
+std::list<Glib::ustring> FileManager::get_file_list()
+	{
+	return filenames;
+	}	

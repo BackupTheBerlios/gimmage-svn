@@ -17,38 +17,40 @@ Copyright 2006 Bartek Kostrzewa
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
     USA   */
 
-// gimmage: Print.cpp
+// gimmage: PrintOperation.cpp
 
 /* Implementation of PrintOperation */
 
 #include "Print.h"
 
-CPrint::CPrint( Glib::ustring filename ) 
+CPrintOperation::CPrintOperation( Glib::ustring filename, std::list<Glib::ustring> filenames ) 
 	{
 	// nothing else can be set yet because references are still missing
+	image_filenames = filenames;
 	image_filename = filename;
 	}
 
-CPrint::~CPrint() 
+CPrintOperation::~CPrintOperation() 
 	{
+	delete previewwidget;
 	}
 
-Glib::RefPtr<CPrint> CPrint::create( Glib::ustring filename )
+Glib::RefPtr<CPrintOperation> CPrintOperation::create( Glib::ustring filename, std::list<Glib::ustring> filenames )
 	{
-	return Glib::RefPtr<CPrint>(new CPrint( filename ) );
+	return Glib::RefPtr<CPrintOperation>(new CPrintOperation( filename, filenames ) );
 	}
 	
-void CPrint::on_begin_print(const Glib::RefPtr<Gtk::PrintContext>& print_context)
+void CPrintOperation::on_begin_print(const Glib::RefPtr<Gtk::PrintContext>& print_context)
 	{
 	std::cout << "on_begin_print\n";
 	}
 
-void CPrint::on_draw_page(const Glib::RefPtr<Gtk::PrintContext>& print_context, int page_nr)
+void CPrintOperation::on_draw_page(const Glib::RefPtr<Gtk::PrintContext>& print_context, int page_nr)
 	{
 	}
 
 
-Gtk::Widget* CPrint::on_create_custom_widget()
+Gtk::Widget* CPrintOperation::on_create_custom_widget()
 	{
 	get_print_settings()->set_orientation(Gtk::PAGE_ORIENTATION_LANDSCAPE);
 	
@@ -56,10 +58,11 @@ Gtk::Widget* CPrint::on_create_custom_widget()
 	set_custom_tab_label("Image Placement");
 
 	// create the preview widget 
-	CPrintPreviewWidget *previewwidget = new 
+	previewwidget = new 
 		CPrintPreviewWidget( get_default_page_setup(),
 		get_print_settings(),
-		image_filename );
+		image_filename,
+		image_filenames );
 	
   /* Create a custom tab in the print dialog titled "Other"
   set_custom_tab_label("Other");
@@ -85,6 +88,6 @@ Gtk::Widget* CPrint::on_create_custom_widget()
 	return previewwidget;
 	}
 	
-void CPrint::on_custom_widget_apply(Gtk::Widget* widget)
+void CPrintOperation::on_custom_widget_apply(Gtk::Widget* widget)
 	{
 	}

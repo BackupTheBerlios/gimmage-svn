@@ -47,9 +47,14 @@ class FileManager
 		
 		// methods to receive filenames, self-descriptive
 		Glib::ustring get_first_file();
+		Glib::ustring get_current_file();
+		
+		// increment/decrement the iterator and return the filename
 		Glib::ustring get_next_file();
 		Glib::ustring get_previous_file();
-		Glib::ustring get_current_file();
+		
+		// return a copy of the filenames list
+		std::list<Glib::ustring> get_file_list();
 
 		// this returns the current working directory (where the file that is currently
 		// being displayed resides
