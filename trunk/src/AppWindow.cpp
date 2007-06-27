@@ -742,20 +742,39 @@ void AppWindow::on_button_print(void)
 // printing system not complete yet	
  void AppWindow::print(Gtk::PrintOperationAction print_action)
 	{
+
+	
 	Glib::RefPtr<CPrintOperation> refprint = CPrintOperation::create( 
 		ImageManager.get_current_file(),
-		ImageManager.get_file_list() );
+		ImageManager.get_file_list(),
+		refPageSetup,
+		refPrintSettings );
 	
 	refprint->set_track_print_status();
+
+#ifdef DEBUG
+std::cout << "APPWINDOW::PRINT: refPageSetup " << refPageSetup << std::endl;
+std::cout << "APPWINDOW::PRINT: refPrintSettings " << refPrintSettings << std::endl;
+#endif // DEBUG	
+	
 	refprint->set_default_page_setup( refPageSetup );
 	refprint->set_print_settings( refPrintSettings );
-		
+	
+#ifdef DEBUG
+std::cout << "APPWINDOW::PRINT: refPageSetup " << refPageSetup << std::endl;
+std::cout << "APPWINDOW::PRINT: refPrintSettings " << refPrintSettings << std::endl;
+#endif // DEBUG		
+			
 	//connect to print done
 	refprint->signal_done().connect(sigc::bind(sigc::mem_fun(*this, &AppWindow::on_print_done), &refprint));
 	
 	try
 		{
 		refprint->run(print_action, *this);
+// TEST
+		std::cout << refPageSetup->get_paper_size().get_name() << std::endl;
+		std::cout << refPageSetup->get_page_width(Gtk::UNIT_MM) << std::endl;
+// TEST
 		}
 	catch(const Gtk::PrintError& error)
 		{

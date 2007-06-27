@@ -1,6 +1,6 @@
 bin_PROGRAMS = gimmage
 gimmage_SOURCES = AppWindow.cpp AppWindow.h \
-Print.cpp Print.h \
+PrintOperation.cpp PrintOperation.h \
 PrintPreviewWidget.cpp PrintPreviewWidget.h \
 PagePreview.cpp PagePreview.h \
 Preview.cpp Preview.h \

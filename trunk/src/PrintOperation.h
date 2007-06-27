@@ -23,18 +23,38 @@ Copyright 2006 Bartek Kostrzewa
 #include <gtkmm/printoperation.h>
 
 #include "PrintPreviewWidget.h"
+#include "../config.h"
 
 class CPrintOperation : public Gtk::PrintOperation
 {
 public:
-	static Glib::RefPtr<CPrintOperation> create( Glib::ustring , std::list<Glib::ustring> );
-	virtual ~CPrintOperation();
+	static Glib::RefPtr<CPrintOperation> create( 
+		Glib::ustring , 
+		std::list<Glib::ustring>,
+		const Glib::RefPtr<Gtk::PageSetup> &,
+		const Glib::RefPtr<Gtk::PrintSettings> & );
+		
+	~CPrintOperation();
+	
+	// this pointer is set from within the CPrintPreviewWidget to tell us 
+	// its addreess, so that we can give it our PageSetup and PrintSettings
+	
+	CPrintPreviewWidget *ptrPrintPreviewWidget;
+	void set_members_print_preview_widget( 
+		const Glib::RefPtr<Gtk::PageSetup>&, 
+		const Glib::RefPtr<Gtk::PrintSettings>& );
 
 protected:
-	// pointer to the preview widget
-	CPrintPreviewWidget *previewwidget;
+	Glib::RefPtr<Gtk::PageSetup> refPageSetup;
+	Glib::RefPtr<Gtk::PrintSettings> refPrintSettings;	
 
-	CPrintOperation( Glib::ustring, std::list<Glib::ustring> );
+	CPrintOperation( 
+		Glib::ustring, 
+		std::list<Glib::ustring>,
+		const Glib::RefPtr<Gtk::PageSetup> &,
+		const Glib::RefPtr<Gtk::PrintSettings> & );
+	
+	
 	virtual void on_begin_print( const Glib::RefPtr<Gtk::PrintContext>& context );
 	virtual void on_draw_page( const Glib::RefPtr<Gtk::PrintContext>& context, int page_nr );
 
@@ -43,7 +63,7 @@ protected:
 	virtual void on_custom_widget_apply(Gtk::Widget* widget); // */
 	
 	Glib::ustring image_filename;
-	std::list<Glib::ustring> image_filenames;
+	std::list<Glib::ustring> image_filelist;
 
 	Glib::RefPtr<Pango::Layout> m_refLayout;
 };

@@ -25,6 +25,7 @@ Copyright 2006 Bartek Kostrzewa
 
 #include <gtkmm/printoperation.h>
 
+#include <gtkmm/button.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/box.h>
 #include <gtkmm/buttonbox.h>
@@ -36,6 +37,7 @@ Copyright 2006 Bartek Kostrzewa
 
 
 #include "PagePreview.h"
+#include "../config.h"
 
 // the tree model for the iconview in the preview widget
 class CImageListColumns : public Gtk::TreeModelColumnRecord
@@ -51,28 +53,39 @@ public:
 class CPrintPreviewWidget : public Gtk::VBox
 {
 public:
+	void hello() { std::cout << "hello\n"; }
+
 	// needs to take all relevant data at time 
-	CPrintPreviewWidget( const Glib::RefPtr<Gtk::PageSetup>,
-		const Glib::RefPtr<Gtk::PrintSettings>,
-		Glib::ustring&,
-		std::list<Glib::ustring>& );
-		
+	CPrintPreviewWidget( Glib::ustring&,
+		std::list<Glib::ustring>&,
+		CPrintPreviewWidget** );
 	~CPrintPreviewWidget();
-	
+
 	Glib::ustring& get_image_filename();
 	
+	// sets up the members that could not be set during creation due to
+	// asynchronity issues
+	void set_members( const Glib::RefPtr<Gtk::PageSetup>&, 
+		const Glib::RefPtr<Gtk::PrintSettings>& );
+		
+	void on_page_setup_done(const Glib::RefPtr<Gtk::PageSetup>&);
+	void on_button_page_setup(void);
+	
 protected:
+
 	void populate_iconview();
 
 	Glib::RefPtr<Gtk::PageSetup> refPageSetup;
 	Glib::RefPtr<Gtk::PrintSettings> refPrintSettings;
 
-	std::list<Glib::ustring> image_filenames;
+	std::list<Glib::ustring> image_filelist;
 	Glib::ustring image_filename;
 	CPagePreview	Page;
 	
 	Gtk::HBox		TopHBox;
 	Gtk::HButtonBox	HButtonBox;
+	
+	Gtk::Button	PageSetupButton;
 	
 	Gtk::Frame	PagePreviewFrame;
 	Gtk::Frame	PageSettingsFrame;

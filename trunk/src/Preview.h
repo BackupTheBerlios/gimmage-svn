@@ -17,7 +17,7 @@ Copyright 2006 Bartek Kostrzewa
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
     USA   */
 
-// gimmage: PagePreview.h
+// gimmage: Preview.h
 
 #include <iostream>
 
@@ -25,6 +25,8 @@ Copyright 2006 Bartek Kostrzewa
 #include <gtkmm/drawingarea.h>
 #include <gtkmm/eventbox.h>
 #include <cairomm/cairomm.h>
+
+#include "../config.h"
 
 class CPreview : public Gtk::DrawingArea
 {

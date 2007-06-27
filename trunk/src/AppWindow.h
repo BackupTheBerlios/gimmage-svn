@@ -56,9 +56,8 @@ class AppWindow : public Gtk::Window
 	public:
 		AppWindow(int argnum = 0, char **argcon = NULL);
 		virtual ~AppWindow();
-
 		
-	protected:
+	protected:	
 		// these will take the command line options, otherwise we can't access them
 		// from our methods
 		int argc;
@@ -142,13 +141,12 @@ class AppWindow : public Gtk::Window
 		Gdk::Cursor Hand, Watch;
 		
 		// printing system	
+		Glib::RefPtr<Gtk::PageSetup> refPageSetup;
+		Glib::RefPtr<Gtk::PrintSettings> refPrintSettings;
 		void print(Gtk::PrintOperationAction print_action);
 		void on_print_done(Gtk::PrintOperationResult,
 			Glib::RefPtr<CPrintOperation>* );
-			
-		Glib::RefPtr<Gtk::PageSetup> refPageSetup;
-		Glib::RefPtr<Gtk::PrintSettings> refPrintSettings;
-	
+		
 	// Event Handlers
 	   		
 		virtual void on_button_next(void);

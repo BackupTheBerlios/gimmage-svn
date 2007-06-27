@@ -21,20 +21,31 @@ Copyright 2006 Bartek Kostrzewa
 
 #include "PrintPreviewWidget.h"
 
-CPrintPreviewWidget::CPrintPreviewWidget(const Glib::RefPtr<Gtk::PageSetup> _refPageSetup,
-		const Glib::RefPtr<Gtk::PrintSettings> _refPrintSettings,
-		Glib::ustring &filename,
-		std::list<Glib::ustring> &filenames ) :
+CPrintPreviewWidget::CPrintPreviewWidget( Glib::ustring &filename,
+		std::list<Glib::ustring> &filelist,
+		CPrintPreviewWidget **_ptrPrintPreviewWidget) /*,
+		Glib::RefPtr<Gtk::PageSetup> &_refPageSetup,
+		Glib::RefPtr<Gtk::PrintSettings> &_refPrintSettings  ) // */ :
 	Page()
 	{
-	std::cout << "CPRINTPREVIEWWIDGET: constructor\n";
-	image_filenames = filenames;
+	set_flags(Gtk::NO_WINDOW);
+	
+	// tell our parent print operation who we are
+	*_ptrPrintPreviewWidget = this;
+
+#ifdef DEBUG
+	std::cout << "CPRINTPREVIEWWIDGET: constructor\n";	
+	std::cout << "CPRINTPREVIEWWIDGET: pointer address: " << _ptrPrintPreviewWidget << std::endl;
+	std::cout << "CPRINTPREVIEWWIDGET: address pointed to by pointer: " << *_ptrPrintPreviewWidget << std::endl;
+#endif // DEBUG
+
+	image_filelist = filelist;
 	image_filename = filename;
 	
 	refImageList = Gtk::ListStore::create( ImageListColumns );
 	
-	refPageSetup = _refPageSetup;
-	refPrintSettings = _refPrintSettings;
+	/*refPageSetup = _refPageSetup;
+	refPrintSettings = _refPrintSettings;*/
 	
 	PagePreviewFrame.add(Page);
 	TopHBox.pack_start(PagePreviewFrame,Gtk::PACK_SHRINK);
@@ -54,35 +65,51 @@ CPrintPreviewWidget::CPrintPreviewWidget(const Glib::RefPtr<Gtk::PageSetup> _ref
 	
 	pack_start(TopHBox,Gtk::PACK_SHRINK);
 	pack_start(PageSettingsFrame,Gtk::PACK_SHRINK);
+	
+	PageSetupButton.set_label( "Page Size and Orientation" );
+	HButtonBox.pack_start( PageSetupButton, Gtk::PACK_SHRINK );
 	pack_start(HButtonBox,Gtk::PACK_SHRINK);
 	
 	Page.load( image_filename );
 	
 	show_all_children();
+	
+	PageSetupButton.signal_clicked().connect(
+		sigc::mem_fun(*this,&CPrintPreviewWidget::on_button_page_setup));
 	}
 	
-CPrintPreviewWidget::~CPrintPreviewWidget() 
+CPrintPreviewWidget::~CPrintPreviewWidget()
 	{
-	std::cout << "CPRINTPREVIEWWIDGET: destructor\n";
+#ifdef DEBUG
+std::cout << "~CPRINTPREVIEWWIDGET: PrintPreviewWidget destroyed\n";
+#endif // DEBUG
+	refPageSetup.clear();
+	refPrintSettings.clear();	
+	}	
+		
+void CPrintPreviewWidget::set_members( 
+	const Glib::RefPtr<Gtk::PageSetup> &_refPageSetup,
+	const Glib::RefPtr<Gtk::PrintSettings> &_refPrintSettings )
+	{
+#ifdef DEBUG
+std::cout << "CPRINTPREVIEWWIDGET::SET_MEMBERS: refPageSetup " << refPageSetup << std::endl;
+std::cout << "CPRINTPREVIEWWIDGET::SET_MEMBERS: refPrintSettings " << refPrintSettings << std::endl;
+#endif // DEBUG
 	
-	// clear the pixbuf refptrs
-	Gtk::TreeModel::Children children = refImageList->children();
-	Glib::RefPtr<Gdk::Pixbuf> icon;
-	
-	Gtk::TreeModel::Row row;
-	for(Gtk::TreeModel::Children::iterator iter = children.begin();
-    	iter != children.end(); ++iter)
-		{
-  		row = *iter;
- 		icon = row[ ImageListColumns.thumbnails_column ];
- 		icon.clear();
-		}
-	}
+		refPageSetup = _refPageSetup;
+		refPrintSettings = _refPrintSettings;
+		
+#ifdef DEBUG
+std::cout << "CPRINTPREVIEWWIDGET::SET_MEMBERS: refPageSetup " << refPageSetup << std::endl;
+std::cout << "CPRINTPREVIEWWIDGET::SET_MEMBERS: refPrintSettings " << refPrintSettings << std::endl;
+#endif // DEBUG	
 
+	}	
+	
 void CPrintPreviewWidget::populate_iconview()
 	{
-	std::list<Glib::ustring>::iterator f_iterator = image_filenames.begin();
-	std::list<Glib::ustring>::iterator f_end = image_filenames.end();
+	std::list<Glib::ustring>::iterator f_iterator = image_filelist.begin();
+	std::list<Glib::ustring>::iterator f_end = image_filelist.end();
 	
 	Gtk::TreeModel::iterator iter;
 	Gtk::TreeModel::Row row;
@@ -96,13 +123,30 @@ void CPrintPreviewWidget::populate_iconview()
 		
 		row[ ImageListColumns.thumbnails_column ] =
 			Gdk::Pixbuf::create_from_file( *f_iterator,
-			 200,
-			 200 );
+			 72,
+			 72 );
 			
 		f_iterator++;
 		}
 	
 	}
 
+void CPrintPreviewWidget::on_button_page_setup()
+	{
+	//temporary window to fool run_page_setup_dialog(...) :)
+	Gtk::Window window;
+	Glib::RefPtr<Gtk::PageSetup> tempPageSetup = Gtk::run_page_setup_dialog( 
+		window, 
+		refPageSetup, 
+		refPrintSettings); 
+		//sigc::mem_fun(get_parent(),&CPrintPreviewWidget::on_page_setup_done) );
+	
+	refPageSetup->set_paper_size( tempPageSetup->get_paper_size() );
+	refPageSetup->set_orientation( tempPageSetup->get_orientation() );
+	
+	//std::cout << refPageSetup->get_paper_size().get_name() << std::endl;
+	}
 
-
+void CPrintPreviewWidget::on_page_setup_done(const Glib::RefPtr<Gtk::PageSetup>& page_setup)
+	{
+	}

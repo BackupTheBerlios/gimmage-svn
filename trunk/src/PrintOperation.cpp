@@ -21,23 +21,43 @@ Copyright 2006 Bartek Kostrzewa
 
 /* Implementation of PrintOperation */
 
-#include "Print.h"
+#include "PrintOperation.h"
 
-CPrintOperation::CPrintOperation( Glib::ustring filename, std::list<Glib::ustring> filenames ) 
+CPrintOperation::CPrintOperation( 
+	Glib::ustring filename, 
+	std::list<Glib::ustring> filelist,
+	const Glib::RefPtr<Gtk::PageSetup>& _refPageSetup,
+	const Glib::RefPtr<Gtk::PrintSettings>& _refPrintSettings ) 
 	{
 	// nothing else can be set yet because references are still missing
-	image_filenames = filenames;
+	// store the refPageSetup which will become our PageSetup and the 
+	// relevant PrintSettings
+	refPageSetup = _refPageSetup;
+	refPrintSettings = _refPrintSettings;
+	image_filelist = filelist;
 	image_filename = filename;
+	ptrPrintPreviewWidget = NULL;
 	}
 
 CPrintOperation::~CPrintOperation() 
 	{
-	delete previewwidget;
+#ifdef DEBUG
+std::cout << "~CPRINTOPERATION: PrintOperation destroyed\n";
+#endif // DEBUG
+	//delete ptrPrintPreviewWidget;
 	}
 
-Glib::RefPtr<CPrintOperation> CPrintOperation::create( Glib::ustring filename, std::list<Glib::ustring> filenames )
+Glib::RefPtr<CPrintOperation> CPrintOperation::create( 
+	Glib::ustring filename, 
+	std::list<Glib::ustring> filelist,
+	const Glib::RefPtr<Gtk::PageSetup> &_refPageSetup,
+	const Glib::RefPtr<Gtk::PrintSettings> &_refPrintSettings )
 	{
-	return Glib::RefPtr<CPrintOperation>(new CPrintOperation( filename, filenames ) );
+	return Glib::RefPtr<CPrintOperation>(new CPrintOperation( 
+		filename, 
+		filelist, 
+		_refPageSetup, 
+		_refPrintSettings ) );
 	}
 	
 void CPrintOperation::on_begin_print(const Glib::RefPtr<Gtk::PrintContext>& print_context)
@@ -49,20 +69,27 @@ void CPrintOperation::on_draw_page(const Glib::RefPtr<Gtk::PrintContext>& print_
 	{
 	}
 
-
 Gtk::Widget* CPrintOperation::on_create_custom_widget()
-	{
-	get_print_settings()->set_orientation(Gtk::PAGE_ORIENTATION_LANDSCAPE);
-	
+	{	
 	//Create a custom tab in the print dialog titled "Other"
 	set_custom_tab_label("Image Placement");
 
-	// create the preview widget 
-	previewwidget = new 
-		CPrintPreviewWidget( get_default_page_setup(),
-		get_print_settings(),
-		image_filename,
-		image_filenames );
+	// create the preview widget, note that we send the address of the 
+	// pointer so that we can change the pointer remotely
+	Gtk::Widget* previewwidget = Gtk::manage( new CPrintPreviewWidget( 
+		image_filename, 
+		image_filelist,
+		&ptrPrintPreviewWidget ));
+
+	// if the pointer has been set, give the preview widget the page setup
+	// and print_settings 	
+	if( ptrPrintPreviewWidget != NULL )
+		{
+#ifdef DEBUG
+std::cout << "ON_CREATE_CUSTOM_WIDGET: set_members: " << ptrPrintPreviewWidget << std::endl;
+#endif // DEBUG
+		ptrPrintPreviewWidget->set_members( refPageSetup, refPrintSettings );
+		}			 
 	
   /* Create a custom tab in the print dialog titled "Other"
   set_custom_tab_label("Other");
