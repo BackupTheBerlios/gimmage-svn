@@ -54,7 +54,9 @@ FileManager::FileManager(int argc, char **argv)
 	/* let's call OpenFiles() to scan through the directories and set the initialised variable
 	   to tell everyone we're up and running */
 	if( OpenFiles(argc,argv) )
-		initialised = true; 
+		initialised = true;
+		
+	tempfilename = NULL;	
 	}
 
 FileManager::~FileManager()
@@ -65,6 +67,9 @@ FileManager::~FileManager()
 	
 	magic_close(cookie);
 	filenames.clear();
+	
+	if( tempfilename != NULL )
+		delete[]tempfilename;
 	}
 	
 bool FileManager::OpenFiles(int argc, char **argv)
@@ -73,16 +78,20 @@ bool FileManager::OpenFiles(int argc, char **argv)
 std::cout << "OPENFILES: OpenFiles called \n";
 #endif // DEBUG
 
+	// makes sure we're dealing with a clean slate
+	filenames.clear();
+	numfiles = 0;
+	cwd_checked = false;
+	initialised = false;
 	
-	//	if we have initialised already we're being called from the file selector and will
+	/* //	if we have initialised already we're being called from the file selector and will
 	//	accept new files now, let's set initialised and cwd_checked to 'false' and clear our file list
 	if( initialised == true )
 		{
-		filenames.erase(filenames.begin(), filenames.end());
 		numfiles = 0;
 		cwd_checked = false;
 		initialised = false;
-		}
+		} // */
 		
 #ifdef DEBUG
 std::cout << "OPENFILES: OpenFiles called \n";
@@ -230,6 +239,65 @@ std::cout << "OPENFILES: get_current_dir_name(): " << get_current_dir_name() << 
 
 	}
 
+void FileManager::OpenNewSet( std::list<Glib::ustring> &new_filenames )
+	{
+	if( tempfilename != NULL )
+		{
+		delete[]tempfilename;
+		tempfilename = NULL;
+		}
+	
+	filenames.clear();
+	numfiles = 0;
+	initialised = false;
+	cwd_checked = false;
+	
+	filenames = new_filenames;
+	
+	std::list<Glib::ustring>::iterator begin = filenames.begin();
+	std::list<Glib::ustring>::iterator end = filenames.end();
+	std::list<Glib::ustring>::iterator iter = filenames.begin();
+	std::list<Glib::ustring>::iterator iter2 = filenames.begin();
+	
+	while( iter != end )
+		{
+		if( !filter_filename( *iter ) )
+			{
+			iter2 = filenames.erase( iter );
+			iter = iter2;
+			}
+		else
+			{
+			iter++;
+			numfiles++;
+			}
+		}
+	
+	std::cout << "Numfiles: " << numfiles << std::endl;	
+		
+	if( numfiles > 0 )
+		{	
+		filenames.sort();
+		file_iterator = filenames.begin();
+		initialised = true;
+		}
+	
+	// if we end up with only one file, let's scan that directory
+	tempfilename = new char*[ sizeof( *(filenames.begin())->c_str() ) ];
+	if( numfiles == 1 )
+		{
+		initialised = false;
+		OpenNewSet( 2, tempfilename );
+		}
+		
+	if( tempfilename != NULL )
+		{
+		delete[]tempfilename;
+		tempfilename = NULL;
+		}
+	}
+
+// TODO WORK ON THIS, it seems fishy!
 
 // wrapper for OpenFiles
 // the while loop checks whether the file we wish to open is in the currently
@@ -240,6 +308,8 @@ void FileManager::OpenNewSet(int argc,char **argv)
 	{
 	file_iterator = filenames.begin(); // we have to check whether we're not opening a directory
 	std::list<Glib::ustring>::iterator end = filenames.end();
+	
+	// let's see if the file is already in our list
 	if( initialised && filter_filename( argv[1] ) )
 		{
 		while( file_iterator != end )
@@ -247,7 +317,7 @@ void FileManager::OpenNewSet(int argc,char **argv)
 			#ifdef DEBUG		
 			std::cout << "OPENNEWSET: Looking for: " << argv[1] << " in " << *file_iterator << std::endl;
 			#endif
-			if( (*file_iterator).find( argv[1] ) != Glib::ustring::npos )
+			if( file_iterator->find( argv[1] ) != Glib::ustring::npos )
 				break;
 			file_iterator++;
 			}
@@ -447,38 +517,41 @@ bool FileManager::filter_filename(Glib::ustring filename)
 		filename.find(".SVG") != Glib::ustring::npos )
 		return true;
 	
-	// if we haven't returned yet, do file magic
-	if( magic_file( cookie, filename.c_str() ) != NULL )
+	else
 		{
-		result = magic_file(cookie, filename.c_str() );
-#ifdef DEBUG
-		std::cout << filename << " " << result << std::endl;
-#endif // DEBUG
+		// if we haven't returned yet, do file magic
+		if( magic_file( cookie, filename.c_str() ) != NULL )
+			{
+			result = magic_file(cookie, filename.c_str() );
+	#ifdef DEBUG
+			std::cout << filename << " " << result << std::endl;
+	#endif // DEBUG
+			}
+		else
+			std::cout << GT( "FILTER_FILENAME: The file type could not be determined: " ) << filename << std::endl;
+
+		// SVG is an xml format, libmagic gives XML, so we check the filename!
+		// EPS sometimes holds TIFF images, we prevent the program from opening them!
+
+		if( result.find("JPEG") != Glib::ustring::npos 	||
+			result.find("GIF") != Glib::ustring::npos	||
+			result.find("PNG") != Glib::ustring::npos	||
+			result.find("PC bitmap") != Glib::ustring::npos ||
+			result.find("PCX") != Glib::ustring::npos ||
+			result.find("PGM") != Glib::ustring::npos	||
+			result.find("PPM") != Glib::ustring::npos	||
+			result.find("TIFF") != Glib::ustring::npos && result.find("EPS") == Glib::ustring::npos	||
+			result.find("X pixmap image text") != Glib::ustring::npos	||
+			result.find("Targa") != Glib::ustring::npos	||
+			result.find("PBM") != Glib::ustring::npos	||
+			result.find("SVG") != Glib::ustring::npos	||
+			result.find("PPM") != Glib::ustring::npos ||
+			filename.find(".svg") != Glib::ustring::npos ||
+			filename.find(".SVG") != Glib::ustring::npos        )
+			return true;
+		else
+			return false;
 		}
-	else
-		std::cout << GT( "FILTER_FILENAME: The file type could not be determined: " ) << filename << std::endl;
-
-	// SVG is an xml format, libmagic gives XML, so we check the filename!
-	// EPS sometimes holds TIFF images, we prevent the program from opening them!
-
-	if( result.find("JPEG") != Glib::ustring::npos 	||
-		result.find("GIF") != Glib::ustring::npos	||
-		result.find("PNG") != Glib::ustring::npos	||
-		result.find("PC bitmap") != Glib::ustring::npos ||
-		result.find("PCX") != Glib::ustring::npos ||
-		result.find("PGM") != Glib::ustring::npos	||
-		result.find("PPM") != Glib::ustring::npos	||
-		result.find("TIFF") != Glib::ustring::npos && result.find("EPS") == Glib::ustring::npos	||
-		result.find("X pixmap image text") != Glib::ustring::npos	||
-		result.find("Targa") != Glib::ustring::npos	||
-		result.find("PBM") != Glib::ustring::npos	||
-		result.find("SVG") != Glib::ustring::npos	||
-		result.find("PPM") != Glib::ustring::npos ||
-		filename.find(".svg") != Glib::ustring::npos ||
-		filename.find(".SVG") != Glib::ustring::npos        )
-		return true;
-	else
-		return false;
 	}
 
 // returns the current file's directory name if we have initialised already

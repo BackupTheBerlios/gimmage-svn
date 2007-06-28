@@ -26,17 +26,19 @@ Copyright 2006 Bartek Kostrzewa
 CPrintOperation::CPrintOperation( 
 	Glib::ustring filename, 
 	std::list<Glib::ustring> filelist,
-	const Glib::RefPtr<Gtk::PageSetup>& _refPageSetup,
-	const Glib::RefPtr<Gtk::PrintSettings>& _refPrintSettings ) 
+	const Glib::RefPtr<Gtk::PageSetup>& t_refPageSetup,
+	const Glib::RefPtr<Gtk::PrintSettings>& t_refPrintSettings ) 
 	{
 	// nothing else can be set yet because references are still missing
 	// store the refPageSetup which will become our PageSetup and the 
 	// relevant PrintSettings
-	refPageSetup = _refPageSetup;
-	refPrintSettings = _refPrintSettings;
+	refPageSetup = t_refPageSetup;
+	refPrintSettings = t_refPrintSettings;
 	image_filelist = filelist;
 	image_filename = filename;
 	ptrPrintPreviewWidget = NULL;
+	
+	signal_custom_widget_apply().connect( sigc::mem_fun( *this, &CPrintOperation::on_custom_widget_apply ) );
 	}
 
 CPrintOperation::~CPrintOperation() 
@@ -50,14 +52,14 @@ std::cout << "~CPRINTOPERATION: PrintOperation destroyed\n";
 Glib::RefPtr<CPrintOperation> CPrintOperation::create( 
 	Glib::ustring filename, 
 	std::list<Glib::ustring> filelist,
-	const Glib::RefPtr<Gtk::PageSetup> &_refPageSetup,
-	const Glib::RefPtr<Gtk::PrintSettings> &_refPrintSettings )
+	const Glib::RefPtr<Gtk::PageSetup> &t_refPageSetup,
+	const Glib::RefPtr<Gtk::PrintSettings> &t_refPrintSettings )
 	{
 	return Glib::RefPtr<CPrintOperation>(new CPrintOperation( 
 		filename, 
 		filelist, 
-		_refPageSetup, 
-		_refPrintSettings ) );
+		t_refPageSetup, 
+		t_refPrintSettings ) );
 	}
 	
 void CPrintOperation::on_begin_print(const Glib::RefPtr<Gtk::PrintContext>& print_context)
@@ -71,7 +73,7 @@ void CPrintOperation::on_draw_page(const Glib::RefPtr<Gtk::PrintContext>& print_
 
 Gtk::Widget* CPrintOperation::on_create_custom_widget()
 	{	
-	//Create a custom tab in the print dialog titled "Other"
+	//Create a custom tab in the print dialog
 	set_custom_tab_label("Image Placement");
 
 	// create the preview widget, note that we send the address of the 
@@ -111,10 +113,13 @@ std::cout << "ON_CREATE_CUSTOM_WIDGET: set_members: " << ptrPrintPreviewWidget <
   m_FontButton.show();
 
   return vbox;	// */
-
+	
+	// on create_custom_widget takes this pointer and inserts it into
+	// the printing dialog
 	return previewwidget;
 	}
 	
 void CPrintOperation::on_custom_widget_apply(Gtk::Widget* widget)
 	{
+	std::cout << "custom widget apply called\n";
 	}

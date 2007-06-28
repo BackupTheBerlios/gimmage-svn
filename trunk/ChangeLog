@@ -1,3 +1,10 @@
+xx.xx.xx - 0.3.0
+-Support for multiple file drag & drop. When dropping a selection of files
+from nautilus for instance, these files will be checked for suitability and
+then opened, without scanning their diretories, thereby limiting the
+selection to the files desired.
+-Printing support is coming, slowly.
+
 25.06.07 - 0.2.3
 -Add command line --help (finally!)
 -Make save button sensitive only if the image format is supported for saving

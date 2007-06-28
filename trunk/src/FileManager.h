@@ -66,6 +66,7 @@ class FileManager
 		
 		// opens a new set of images
 		void OpenNewSet(int,char**);
+		void OpenNewSet( std::list<Glib::ustring>& );
 
 		// this checks (using libmagic) whether the file is supported
 		bool filter_filename(Glib::ustring filename);
@@ -109,5 +110,6 @@ class FileManager
 		DIR *currdir;
 		dirent *dirinfo;
 
+		char **tempfilename;
 
 	};

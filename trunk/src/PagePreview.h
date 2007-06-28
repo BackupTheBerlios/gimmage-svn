@@ -25,27 +25,56 @@ Copyright 2006 Bartek Kostrzewa
 #include <gtkmm/drawingarea.h>
 #include <gtkmm/eventbox.h>
 #include <cairomm/cairomm.h>
+#include <gdkmm/cursor.h>
+
+struct pos { double x,y; };
 
 class CPagePreview : public Gtk::DrawingArea
 {
 public:
 	CPagePreview();
 	~CPagePreview();
-	void load( Glib::ustring );
+	void load( Glib::ustring, bool );
 		
 protected:
 	Glib::RefPtr<Gdk::Pixbuf> ImagePixbuf;
 	
 	virtual bool on_expose_event(GdkEventExpose*);
 	
-	void PixbufLoad( Glib::ustring filename, int width, int height );
+	void PixbufLoad( Glib::ustring filename, int width, int height, bool );
 	
 private:
-	int page_width;
-	int page_height;
-	double image_width_ratio;
-	double image_height_ratio;
+	// the dragging cursor
+	Gdk::Cursor Hand;
+
+	// event handlers for dragging the image around the page
+	bool on_button1_pressed_motion(GdkEventMotion*);
+	bool on_button_press_event(GdkEventButton*);
+	bool on_button_release_event(GdkEventButton*);
+
+	// page dimensions
+	double page_width,page_height;
 	
-	int xpos;
-	int ypos;	
+	// printer margins and their ratios with respect to page size
+	double lmargin,rmargin,tmargin,bmargin;
+	double lmargin_ratio,rmargin_ratio,
+		   tmargin_ratio,bmargin_ratio;
+	
+	// the zoom ratio of the image
+	double image_width_ratio,image_height_ratio;
+	
+	// a border we add for aestetic reasons
+	double xborder,yborder;
+	// the ratio of the border to the drawingarea size
+	double borderratio;
+	// the offset of the shadow
+	double offset;
+	// the position of the 
+	double xpos,ypos;
+	
+	// page corners - margins
+	pos uleft,lright;
+	
+	// helper variables for dragging the image around the page
+	int dragoldx,dragoldy;
 };

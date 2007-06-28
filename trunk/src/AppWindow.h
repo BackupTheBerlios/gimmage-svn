@@ -74,13 +74,16 @@ class AppWindow : public Gtk::Window
 		Gtk::VBox VBox_Top;
 		Gtk::VPaned	VPaned;
 
+		// adjustments for the scrolled window ImageScroller
 		Gtk::Adjustment * h_scroller;
 		Gtk::Adjustment * v_scroller;
 		Gtk::ScrolledWindow ImageScroller;
 		ImageEventBox ImageBox;
 	
-	// filechooser to let the user choose files!
+		// filechooser to let the user choose files!
 		Gtk::FileChooserWidget FileChooser;
+		
+		// a small preview window (drawing area)	
 		CPreview Preview;
 		Gtk::FileFilter	ImageFilter;
 		FileManager ImageManager;
@@ -155,10 +158,13 @@ class AppWindow : public Gtk::Window
 		virtual void on_button_zoom_in(void);
 		virtual void on_button_zoom_out(void);
 		virtual void on_button_zoom_1to1(void);
+		
+		// this horribly named function recenters the image after a zoom operation
 		virtual void adjust_adjustment_on_zoom(double oldscale);
 		
 		virtual void on_button_rotate_anticlockwise(void);
 		virtual void on_button_rotate_clockwise(void);
+		// as above but for rotations
 		virtual void adjust_adjustment_on_rotate(int angle,double h_old, double v_old);
 
 		virtual void on_button_save(void);
@@ -175,24 +181,34 @@ class AppWindow : public Gtk::Window
 		virtual bool on_button_press_event(GdkEventButton*);
 		virtual bool on_button_release_event(GdkEventButton*);
 		
+		// TODO: this will at some point allow the scalefactor to be changed at will
 		virtual void on_spinbutton_digits_changed(void);
 	
+		// TODO: these will move around in the file list at some point (like on_button_previous)
 		virtual void on_mouse_wheel_up(void);
 		virtual void on_mouse_wheel_down(void);
+		
+		// TODO: handler for displaying a context menu
 		virtual void on_right_click(void);
-		virtual void on_left_click(void);
 
+		// TODO: if "fit to window is set" we must handle the resized signal
 		virtual void on_resize(void);
 		
+		// ovveride the default action when the window is closed
 		virtual bool on_delete_event(GdkEventAny*);
 
-		// the following two ints are important for the drag scrolling
+		// the following two ints hold temporary pointer positions for drag scrolling
 		gdouble dragoldx, dragoldy;
+		
+		// event handles for drag & drop
+		// TODO: move to immage_event_box
 		virtual void on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>&, int, int, const Gtk::SelectionData&, guint, guint);
 
 		// load the file when we activate it in the filechooser
 		virtual void on_file_activated(void);
 		virtual void open_new_file( Glib::ustring );
+		
+		// handler to update the preview in the filechooser
 		virtual void on_update_preview(void);
 
 		// let's catch some key presses in order to make the app key-operable

@@ -38,6 +38,12 @@ ImageEventBox::ImageEventBox() :
 	add(Image);
 	show_all_children();
 	loaded = false;
+	
+	// set up event mask for ImageBox (this doesn't really seem to work but hey... )
+	set_events( Gdk::ALL_EVENTS_MASK & ~Gdk::ALL_EVENTS_MASK ); // remove the maks
+	add_events(  Gdk::EXPOSURE_MASK |
+		Gdk::BUTTON_MOTION_MASK|Gdk::BUTTON_PRESS_MASK|
+		Gdk::BUTTON_RELEASE_MASK|Gdk::SCROLL_MASK ); // set a specific mask	
 	}
 
 ImageEventBox::~ImageEventBox()

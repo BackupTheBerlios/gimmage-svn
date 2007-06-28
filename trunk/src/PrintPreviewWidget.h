@@ -23,6 +23,8 @@ Copyright 2006 Bartek Kostrzewa
 
 #include <gdkmm/pixbuf.h>
 
+#include <gtkmm/main.h>
+
 #include <gtkmm/printoperation.h>
 
 #include <gtkmm/button.h>
@@ -34,7 +36,6 @@ Copyright 2006 Bartek Kostrzewa
 
 #include <gtkmm/liststore.h>
 #include <gtkmm/treemodel.h>
-
 
 #include "PagePreview.h"
 #include "../config.h"
@@ -71,9 +72,9 @@ public:
 	void on_page_setup_done(const Glib::RefPtr<Gtk::PageSetup>&);
 	void on_button_page_setup(void);
 	
+	void populate_iconview(void);
+	
 protected:
-
-	void populate_iconview();
 
 	Glib::RefPtr<Gtk::PageSetup> refPageSetup;
 	Glib::RefPtr<Gtk::PrintSettings> refPrintSettings;

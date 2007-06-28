@@ -34,7 +34,7 @@ extern "C" {
 }
 
 
-
+// we have to load the image labels for the buttons in the contructor list
 AppWindow::AppWindow(int argnum, char **argcon) :
 	Hand(Gdk::FLEUR),
 	Watch(Gdk::WATCH),
@@ -72,12 +72,13 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	resize(w_width,w_height);
 
 	// note, this is accessed through a pointer by some functions in ImageEventBox, be careful
-	scalefactor = 0.6;
+	scalefactor = 0.6;  // 0.6 is an arbitrary default, it is overidden later
 
-	// we will use these to use *_scroller->set_value() and get_value
+	// we will use these for *_scroller->set_value() and get_value() and get_page_size()
 	h_scroller = ImageScroller.get_hadjustment();
 	v_scroller = ImageScroller.get_vadjustment();
 	
+	// these increments are not used, see on_key_press_event() instead
 	h_scroller->set_step_increment( 10 );
 	v_scroller->set_step_increment( 10 );
 	
@@ -110,7 +111,7 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	Button_Tooltips.set_tip( ToggleButton_ShowFileChooser, GT( "Show File Browser (f)" ) );
 	Button_Tooltips.set_tip( Button_Quit				, GT( "Quit. (Escape)" ) );
 	
-	// the navigation buttons themselves
+	// pack the buttons into a HButtonBox
 	NavButtonHBox.set_homogeneous(true);
 	NavButtonHBox.pack_start(Button_Previous, Gtk::PACK_SHRINK, 5);
 	NavButtonHBox.pack_start(Button_Next, Gtk::PACK_SHRINK, 5);
@@ -157,16 +158,12 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	
 	FileChooser.set_events( Gdk::ALL_EVENTS_MASK );
 		
-	// set up event mask for ImageBox (this doesn't really seem to work but hey... )
-	ImageBox.set_events( Gdk::ALL_EVENTS_MASK & ~Gdk::ALL_EVENTS_MASK );
-	ImageBox.add_events(  Gdk::EXPOSURE_MASK |
-		Gdk::BUTTON_MOTION_MASK|Gdk::BUTTON_PRESS_MASK|
-		Gdk::BUTTON_RELEASE_MASK|Gdk::SCROLL_MASK );
-
 	// set up drag source and drop target for filenames from filechooser filechooser
 	std::list<Gtk::TargetEntry> dragndrop;
-	dragndrop.push_back( Gtk::TargetEntry("text/plain") );
 	dragndrop.push_back( Gtk::TargetEntry("text/uri-list") );
+	dragndrop.push_back( Gtk::TargetEntry("text/plain") );
+	dragndrop.push_back( Gtk::TargetEntry("STRING" ) );
+	dragndrop.push_back( Gtk::TargetEntry("application/x-rootwindow-drop") );
 
 	ImageBox.drag_dest_set(dragndrop);
 	ImageBox.signal_drag_data_received().connect( sigc::mem_fun(*this,&AppWindow::on_drag_data_received) );
@@ -194,16 +191,17 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	SaveErrorDialog.signal_response().connect(sigc::mem_fun(*this,&AppWindow::on_save_error_dialog_response) );
 
 	Button_Print.signal_clicked().connect(sigc::mem_fun(*this,&AppWindow::on_button_print) );
-
-	
 	
 	ToggleButton_ShowFileChooser.signal_clicked().
 							connect(sigc::mem_fun(*this, &AppWindow::on_button_show_filechooser) );
 
 	Button_Quit.signal_clicked().connect(sigc::mem_fun(*this, &AppWindow::on_button_quit) );
+	
+	// handle closing of AppWindow
 	signal_delete_event().connect(sigc::mem_fun(*this, &AppWindow::on_delete_event) );
 	
-	// this is also triggered when the image is resized, unforunately (evenbox)
+	// this is also triggered when the image is resized, unforunately (due to the eventbox), we don't
+	// use it right now
 	//signal_check_resize().connect(sigc::mem_fun(*this,&AppWindow::on_resize));
 
 	// let's catch keystrokes
@@ -216,6 +214,7 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	// 220 as a height is appropriate for three rows in the filechooser	
 	FileChooser.set_size_request( FileChooser.get_width(), 220 );
 	FileChooser.hide();
+	
 	// make the save button insensitive, it will be usable once it is needed.
 	Button_Save.set_sensitive(false);
 	Button_Print.set_sensitive(false);
@@ -241,7 +240,8 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 						&scalefactor, 
 						v_width,
 						v_height);
-						
+	
+	// activate / deactivate the buttons according to the loading state of the ImageBox
 	set_buttons_active( ImageBox.is_loaded() );
 
 	}
@@ -258,6 +258,17 @@ void AppWindow::set_buttons_active(bool active)
 	Button_Zoom1to1.set_sensitive(active);
 	Button_RotateClockwise.set_sensitive(active);
 	Button_RotateAntiClockwise.set_sensitive(active);
+	
+	if( ImageManager.have_multiple_files() )
+		{ 
+		Button_Next.set_sensitive(true);
+		Button_Previous.set_sensitive(true);
+		}
+	else
+		{
+		Button_Next.set_sensitive(false);
+		Button_Previous.set_sensitive(false);
+		}	
 	}
 
 bool AppWindow::on_button_press_event(GdkEventButton *event)
@@ -273,7 +284,7 @@ std::cout << "ON_BUTTON_PRESS_EVENT: pressed button " << event->button << std::e
 			ImageScroller.get_pointer(x, y);
 			dragoldx = x;
 			dragoldy = y;
-			return false;
+			return true;
 			break; //just to be sure
 
 		// for other buttons, set dragoldx/dragoldy to -999999
@@ -281,7 +292,7 @@ std::cout << "ON_BUTTON_PRESS_EVENT: pressed button " << event->button << std::e
 		// (on_button1_pressed_motion)
 		default:
 			dragoldx = dragoldy = -999999;
-			return false;
+			return true;
 			break;
 		}
  	}
@@ -297,11 +308,11 @@ std::cout << "ON_BUTTON_RELEASE_EVENT: released button " << event->button << std
 			// set_cursor() sets the cursor to the parent window's cursor, which should
 			// properly handle right- and left-pointing cursors
 			ImageBox.get_window()->set_cursor();
-			return false;
+			return true;
 			break;
 		
 		default:
-			return false;
+			return true;
 			break;
 		}
 	}
@@ -319,10 +330,10 @@ bool AppWindow::on_button1_pressed_motion(GdkEventMotion *event)
 			ImageScroller.get_pointer(x, y);
 			
 #ifdef DEBUG
-std::cout << "ON_BUTTON1_PRESSED_MOTION: Y = \t" << event->y << '\t';
-std::cout << "Oldy = \t" << dragoldy << std::endl;
-std::cout << "ON_BUTTON1_PRESSED_MOTION: Pointer x = " << x << std::endl;
-std::cout << "ON_BUTTON1_PRESSED_MOTION: Pointer y = " << y << std::endl;
+	std::cout << "ON_BUTTON1_PRESSED_MOTION: Y = \t" << event->y << '\t';
+	std::cout << "ON_BUTTON1_PRESSED_MOTION: Oldy = \t" << dragoldy << std::endl;
+	std::cout << "ON_BUTTON1_PRESSED_MOTION: Pointer x = " << x << std::endl;
+	std::cout << "ON_BUTTON1_PRESSED_MOTION: Pointer y = " << y << std::endl;
 #endif // DEBUG
 	
 			if(h_scroller->get_page_size() < ImageBox.get_image_width())
@@ -334,13 +345,18 @@ std::cout << "ON_BUTTON1_PRESSED_MOTION: Pointer y = " << y << std::endl;
 					h_scroller->set_value(h_scroller->get_value() - (x - dragoldx));
 					dragoldx = x;
 					}
-					
-				// snap to end	
+				// snap to beginning / end
 				else if(	(h_scroller->get_value() - (x - dragoldx)) < 0 )
+					{
 					h_scroller->set_value(0);
+					dragoldx = x;
+					}
 				else if(	(h_scroller->get_value() - (x - dragoldx)) >
 					( ImageBox.get_image_width() - h_scroller->get_page_size() ) )
+					{
 					h_scroller->set_value( ImageBox.get_image_width() - h_scroller->get_page_size() );
+					dragoldx = x;
+					}
 				}
 	
 			if(v_scroller->get_page_size() < ImageBox.get_image_height())
@@ -352,15 +368,21 @@ std::cout << "ON_BUTTON1_PRESSED_MOTION: Pointer y = " << y << std::endl;
 					v_scroller->set_value(v_scroller->get_value() - (y-dragoldy));
 					dragoldy = y;
 					}
-				// 	snap to end
+				// 	snap to beginning / end
 				else if(	(v_scroller->get_value() - (y - dragoldy)) < 0 )
+					{
 					v_scroller->set_value(0);
+					dragoldy = y;
+					}
 				else if(	(v_scroller->get_value() - (y - dragoldy)) >
 					( ImageBox.get_image_height() - v_scroller->get_page_size() ) )
+					{
 					v_scroller->set_value( ImageBox.get_image_height() - v_scroller->get_page_size() );
+					dragoldy = y;
+					}
 				}
 	
-			return false;
+			return true;
 			}
 		}
 	return true;
@@ -369,28 +391,96 @@ std::cout << "ON_BUTTON1_PRESSED_MOTION: Pointer y = " << y << std::endl;
 
 
 
-void AppWindow::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& selection_data, guint info, guint time)
-	{  
-    // this is totally ridiculous, but so be it!
-	// we erase the protocol in front of the filename
-	// using std::string because Glib::ustring throws a conversion error for some reason
-	std::string string_filename = selection_data.get_data_as_string();
-	string_filename.erase(0, string_filename.find(':')+3); 
-
-	//convert to char* and unescape
-	char * temp_filename = curl_unescape( string_filename.c_str(), 0);
-	string_filename = temp_filename;
-	// curl requires this to be freed
-	curl_free( temp_filename );
+void AppWindow::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, 
+	int x, int y, const Gtk::SelectionData& selection_data, guint info, guint time)
+	{
 	
-	//let's remove any \n and \r that are typical of URI's
-	if ( string_filename.find('\n') != Glib::ustring::npos )
-		string_filename.erase( string_filename.find('\n'), 1 );
-	if ( string_filename.find('\r') != Glib::ustring::npos )
-		string_filename.erase( string_filename.find('\r'), 1 );
+#ifdef DEBUG	
+	std::cout << "ON_DRAG_DATA_RECEIVED: type: " << selection_data.get_data_type() << std::endl;
+	std::cout << "ON_DRAG_DATA_RECEIVED: data: " << selection_data.get_data_as_string() << std::endl;
+#endif // DEBUG
 
-	open_new_file( string_filename );
-	context->drag_finish(false, false, time);
+
+	if (selection_data.get_data_type() == "text/uri-list")
+		{
+		std::list<Glib::ustring> new_filenames = selection_data.get_uris();
+			
+		const std::list<Glib::ustring>::iterator begin = new_filenames.begin();
+		const std::list<Glib::ustring>::iterator end = new_filenames.end();
+		std::list<Glib::ustring>::iterator iter = new_filenames.begin();
+		int counter = 0;
+		
+		while( iter != end )
+			{
+			// we erase the protocol in front of the filename
+			if( (*iter).find(':') != std::string::npos )
+				(*iter).erase(0, (*iter).find(':')+3);
+			
+			// unescape the URI
+			char * tempfilename = curl_unescape( iter->c_str(), 0);
+			(*iter) = tempfilename;
+			// curl requires this to be freed like this
+			curl_free( tempfilename );
+
+#ifdef DEBUG			
+	std::cout << "ON_DRAG_DATA_RECEIVED: filename: " << *iter << std::endl;
+#endif // DEBUG
+
+			iter++;
+			counter++;
+			}
+		
+		// if we have only one file, we use the argc/argv loader
+		if( counter == 1 )
+			open_new_file( *begin );
+		
+		// otherwise we pass the list to the filemanager directly
+		// (because then we only open the files given)
+		else if( counter > 1 )
+			{
+			busy(true);
+			ImageManager.OpenNewSet( new_filenames );
+			
+			// set the title, load the image
+			set_title( "gimmage: " + ImageManager.get_current_file() );
+			
+			ImageBox.LoadImage(	ImageManager.get_current_file(),
+				&scalefactor, 
+				(int)h_scroller->get_page_size(),
+				(int)v_scroller->get_page_size());
+				
+
+		    // finally, set the filechooser to the right dirname
+	    	set_filechooser_dir();
+
+	    	// activate the buttons
+	    	set_buttons_active( ImageBox.is_loaded() );
+			busy(false);
+
+			// since we now have a new image, let's make sure the save button is off!
+			Button_Save.set_sensitive( false );	
+			}	
+		}
+	
+	// if we're given plain text, maybe it's still an uri or a filename, we should better check
+	// ImageManager.OpenFiles is safe anyway	
+	else if( selection_data.get_data_type() == "text/plain" )
+		{
+			std::string data = selection_data.get_data_as_string();
+			data.erase( data.find('\n') ); // erase any newlines, all we can do is one file
+			// we erase the protocol in front of the filename
+			if( data.find(':') != std::string::npos )
+				data.erase(0, data.find(':')+3);
+			
+			// unescape the URI
+			char * tempfilename = curl_unescape( data.c_str(), 0);
+			data = tempfilename;
+			// curl requires this to be freed like this
+			curl_free( tempfilename );
+			
+			open_new_file( data );
+		} 	
+	context->drag_finish(true, false, time);
 	}
 
 
@@ -430,19 +520,6 @@ void AppWindow::open_new_file( Glib::ustring string_filename )
 	std::cout << "OPEN_NEW_FILE(AppWindow): Deleting the allocated memory for temporary filename.\n";
 	#endif 
 	delete[] filename;
-
-	// if the buttons were not active, let's make them active if we have multiple files
-	// if we don't have multiple files, let's make them inactive
-	if( ImageManager.have_multiple_files() )
-		{ 
-		Button_Next.set_sensitive(true);
-		Button_Previous.set_sensitive(true);
-		}
-	else
-		{
-		Button_Next.set_sensitive(false);
-		Button_Previous.set_sensitive(false);
-		}
 
 	// set the title, load the image
 	set_title( "gimmage: " + ImageManager.get_current_file() );
@@ -490,8 +567,10 @@ std::cout << "SET_FILECHOOSER_DIR: get_current_file(): " << ImageManager.get_cur
 		
 		Glib::ustring path;
 		
-		if( FileChooser.get_filename() != ImageManager.get_current_file() &&
-			ImageBox.is_loaded() )
+		// is_loaded() reports false if a gdk pixbuf error occured, but what if we have
+		// multiple files in the list and this one is broken?
+		if( FileChooser.get_filename() != ImageManager.get_current_file() 
+			&& ( ImageBox.is_loaded() || ImageManager.have_multiple_files() ) )
 			{
 				if( !Glib::path_is_absolute( ImageManager.get_current_file() ) )
 					path = ImageManager.get_current_dir() + ImageManager.get_current_file();
@@ -517,8 +596,8 @@ std::cout << "SET_FILECHOOSER_DIR: path: " << path << std::endl;
 			}
 			
 		// if loading failed, set to the user's home dir
-		else if( !ImageBox.is_loaded() )
-			FileChooser.set_current_folder( Glib::get_home_dir() );
+		else
+			//FileChooser.set_current_folder( Glib::get_home_dir() );
 			
 		// workaround for (i think) a bug in the filechooser widget signalling
 		Preview.load( ImageManager.get_current_file(), 
@@ -774,6 +853,7 @@ std::cout << "APPWINDOW::PRINT: refPrintSettings " << refPrintSettings << std::e
 // TEST
 		std::cout << refPageSetup->get_paper_size().get_name() << std::endl;
 		std::cout << refPageSetup->get_page_width(Gtk::UNIT_MM) << std::endl;
+		std::cout << refPrintSettings->get_printer() << std::endl;
 // TEST
 		}
 	catch(const Gtk::PrintError& error)
@@ -1154,5 +1234,4 @@ void AppWindow::on_resize( void )
 void AppWindow::on_mouse_wheel_up(void)	{}
 void AppWindow::on_mouse_wheel_down(void) {}
 void AppWindow::on_right_click(void) {}
-void AppWindow::on_left_click(void) {}
 void AppWindow::on_spinbutton_digits_changed(void) {}
