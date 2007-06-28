@@ -82,8 +82,9 @@ int main(int argc, char *argv[])
 				"  will display file1 and load all other images in file1's directory\n"
 				"  into the image list\n" );
 
-	Gtk::Main kit(argc,argv,options);
+	//Gtk::Main kit(argc,argv,options);
 	AppWindow gimmage(argc, argv);
+	Gtk::Main kit(argc,argv,options);
 	
 	// test whether the app icon exists
 	std::fstream fin;
@@ -94,7 +95,7 @@ int main(int argc, char *argv[])
 		std::cerr << "MAIN: Gimmage icon not found: " << app_icon_path;	
 	fin.close();
 		
-	
+
 	Gtk::Main::run(gimmage);
 
 	return 0;

@@ -19,6 +19,7 @@ Copyright 2006 Bartek Kostrzewa
 
 // gimmage: PrintPreviewWidget.cpp
 
+
 #include "PrintPreviewWidget.h"
 
 CPrintPreviewWidget::CPrintPreviewWidget( Glib::ustring &filename,
@@ -53,9 +54,13 @@ CPrintPreviewWidget::CPrintPreviewWidget( Glib::ustring &filename,
 	ImageIconView.set_pixbuf_column( ImageListColumns.thumbnails_column );
 	ImageIconView.set_selection_mode(Gtk::SELECTION_MULTIPLE);
 	
-	Glib::Thread* const thread = Glib::Thread::create( 
-		sigc::mem_fun(*this,&CPrintPreviewWidget::populate_iconview),
-		false);
+	/* Glib::Thread* const thread = Glib::Thread::create( 
+		sigc::mem_fun(get_parent(),&CPrintPreviewWidget::populate_iconview),
+		true); */
+		
+	populate_iconview();
+		
+	//thread->join();
 
 	ImageListScroller.add(ImageIconView);
 	ImageListScroller.set_size_request(350,0);
@@ -75,7 +80,7 @@ CPrintPreviewWidget::CPrintPreviewWidget( Glib::ustring &filename,
 	show_all_children();
 	
 	PageSetupButton.signal_clicked().connect(
-		sigc::mem_fun(*this,&CPrintPreviewWidget::on_button_page_setup));
+		sigc::mem_fun(*globalMainPointer,&CPrintPreviewWidget::on_button_page_setup));
 	}
 	
 CPrintPreviewWidget::~CPrintPreviewWidget()
@@ -105,6 +110,10 @@ std::cout << "CPRINTPREVIEWWIDGET::SET_MEMBERS: refPrintSettings " << refPrintSe
 #endif // DEBUG	
 
 	}	
+
+void CPrintPreviewWidget::on_image_ready( Glib::RefPtr<Gdk::Pixbuf>& thumbnail )
+	{
+	}
 	
 void CPrintPreviewWidget::populate_iconview(void)
 	{
@@ -125,6 +134,9 @@ void CPrintPreviewWidget::populate_iconview(void)
 			Gdk::Pixbuf::create_from_file( *f_iterator,
 			 72,
 			 72 );
+			 
+     	while(Gtk::Main::instance()->events_pending())
+       		Gtk::Main::instance()->iteration();	 
 		
 		std::cout << "populating: " << *f_iterator << std::endl;
 			

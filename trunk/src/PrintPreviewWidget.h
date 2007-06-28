@@ -23,7 +23,7 @@ Copyright 2006 Bartek Kostrzewa
 
 #include <gdkmm/pixbuf.h>
 
-#include <gtkmm/main.h>
+#include <glibmm/dispatcher.h>
 
 #include <gtkmm/printoperation.h>
 
@@ -75,6 +75,10 @@ public:
 	void populate_iconview(void);
 	
 protected:
+	// object used to pass messages from the loader thread
+	Glib::Dispatcher	imageReady;
+	
+	std::list<Glib::RefPtr<Gdb::Pixbuf>> thumbnails;
 
 	Glib::RefPtr<Gtk::PageSetup> refPageSetup;
 	Glib::RefPtr<Gtk::PrintSettings> refPrintSettings;
