@@ -24,6 +24,7 @@ Copyright 2006 Bartek Kostrzewa
 #include <gtkmm/window.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/filechooserwidget.h>
+#include <gtkmm/notebook.h>
 #include <gtkmm/box.h>
 #include <gtkmm/dialog.h>
 #include <gtkmm/button.h>
@@ -38,6 +39,7 @@ Copyright 2006 Bartek Kostrzewa
 
 #include "ImageEventBox.h"
 #include "FileManager.h"
+#include "IconView.h"
 
 #include "Preview.h"
 
@@ -80,8 +82,16 @@ class AppWindow : public Gtk::Window
 		Gtk::ScrolledWindow ImageScroller;
 		ImageEventBox ImageBox;
 	
-		// filechooser to let the user choose files!
+		
+		// special IconView with threaded thumbnail loader
+		CIconView Thumbnails;
+		Gtk::Label ThumbnailsTabLabel;
+		// filechooser to let the user choose files
 		Gtk::FileChooserWidget FileChooser;
+		Gtk::Label FileChooserTabLabel;
+		// notebook to contain filechooser and iconview
+		Gtk::Notebook Tabbed;
+		
 		
 		// a small preview window (drawing area)	
 		CPreview Preview;

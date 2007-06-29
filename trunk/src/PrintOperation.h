@@ -23,6 +23,8 @@ Copyright 2006 Bartek Kostrzewa
 #include <gtkmm/printoperation.h>
 
 #include "PrintPreviewWidget.h"
+
+#include "defines.h"
 #include "../config.h"
 
 class CPrintOperation : public Gtk::PrintOperation
@@ -32,7 +34,7 @@ public:
 		Glib::ustring , 
 		std::list<Glib::ustring>,
 		const Glib::RefPtr<Gtk::PageSetup> &,
-		const Glib::RefPtr<Gtk::PrintSettings> & );
+		const Glib::RefPtr<Gtk::PrintSettings> &);
 		
 	~CPrintOperation();
 	
@@ -45,6 +47,7 @@ public:
 		const Glib::RefPtr<Gtk::PrintSettings>& );
 
 protected:
+
 	Glib::RefPtr<Gtk::PageSetup> refPageSetup;
 	Glib::RefPtr<Gtk::PrintSettings> refPrintSettings;	
 
@@ -52,7 +55,7 @@ protected:
 		Glib::ustring, 
 		std::list<Glib::ustring>,
 		const Glib::RefPtr<Gtk::PageSetup> &,
-		const Glib::RefPtr<Gtk::PrintSettings> & );
+		const Glib::RefPtr<Gtk::PrintSettings> &);
 	
 	
 	virtual void on_begin_print( const Glib::RefPtr<Gtk::PrintContext>& context );

@@ -27,6 +27,9 @@ Copyright 2006 Bartek Kostrzewa
 #include <cairomm/cairomm.h>
 #include <gdkmm/cursor.h>
 
+#include "defines.h"
+#include "../config.h"
+
 struct pos { double x,y; };
 
 class CPagePreview : public Gtk::DrawingArea

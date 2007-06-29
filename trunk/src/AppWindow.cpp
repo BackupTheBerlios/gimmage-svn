@@ -55,7 +55,10 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	I_Button_Save(Gtk::StockID("gtk-floppy"), Gtk::IconSize(1)),
 	I_Button_Print(Gtk::StockID("gtk-print"), Gtk::IconSize(1)),
 	I_ToggleButton_ShowFileChooser(Gtk::StockID("gtk-find"), Gtk::IconSize(1)),
-	I_Button_Quit(Gtk::StockID("gtk-quit"), Gtk::IconSize(1))
+	I_Button_Quit(Gtk::StockID("gtk-quit"), Gtk::IconSize(1)),
+	// TODO: add GT
+	ThumbnailsTabLabel("Current Filelist"),
+	FileChooserTabLabel("Filechooser")
 	{	
 	// initialise printing system
 	refPageSetup = Gtk::PageSetup::create();
@@ -136,7 +139,18 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	VBox_Top.pack_start(ImageScroller, Gtk::PACK_EXPAND_WIDGET,0);
 	VBox_Top.pack_start(NavButtonHBox_Alignment, Gtk::PACK_SHRINK,5);
 	VPaned.pack1(VBox_Top);
-	VPaned.pack2(FileChooser, Gtk::PACK_SHRINK, 10);
+	
+	FileChooserTabLabel.set_angle(90);
+	ThumbnailsTabLabel.set_angle(90);
+	
+	Tabbed.set_tab_pos(Gtk::POS_LEFT);
+	Tabbed.append_page(FileChooser,FileChooserTabLabel);
+	Tabbed.append_page(Thumbnails,ThumbnailsTabLabel);
+	
+	// 220 as a height is appropriate for three rows in the filechooser	
+	Tabbed.set_size_request( get_width(), 220 );
+	
+	VPaned.pack2(Tabbed, Gtk::PACK_SHRINK, 10);
 
 	// add toplevel container to window
 	add(VPaned);
@@ -209,12 +223,9 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	
 	// show the window in all its glory
 	show_all_children();
+	// now hide the Notebook, i'm lazy to type show for all children!
+	Tabbed.hide();
 
-	// now hide the filebrowser, i'm lazy to type show for all children!
-	// 220 as a height is appropriate for three rows in the filechooser	
-	FileChooser.set_size_request( FileChooser.get_width(), 220 );
-	FileChooser.hide();
-	
 	// make the save button insensitive, it will be usable once it is needed.
 	Button_Save.set_sensitive(false);
 	Button_Print.set_sensitive(false);
@@ -243,7 +254,7 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	
 	// activate / deactivate the buttons according to the loading state of the ImageBox
 	set_buttons_active( ImageBox.is_loaded() );
-
+	Thumbnails.load_new_thumbs( ImageManager.get_file_list() );
 	}
 
 AppWindow::~AppWindow()
@@ -430,8 +441,11 @@ void AppWindow::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& cont
 			counter++;
 			}
 		
+		if( counter == 0 )
+			return;
+		
 		// if we have only one file, we use the argc/argv loader
-		if( counter == 1 )
+		else if( counter == 1 )
 			open_new_file( *begin );
 		
 		// otherwise we pass the list to the filemanager directly
@@ -449,9 +463,11 @@ void AppWindow::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& cont
 				(int)h_scroller->get_page_size(),
 				(int)v_scroller->get_page_size());
 				
-
-		    // finally, set the filechooser to the right dirname
+	    	// make the iconview load new thumbnails
+			Thumbnails.load_new_thumbs( ImageManager.get_file_list() );
+		    // and finally, set the filechooser to the right dirname
 	    	set_filechooser_dir();
+
 
 	    	// activate the buttons
 	    	set_buttons_active( ImageBox.is_loaded() );
@@ -528,9 +544,13 @@ void AppWindow::open_new_file( Glib::ustring string_filename )
 						(int)h_scroller->get_page_size(),
 						(int)v_scroller->get_page_size());
 
+
     // finally, set the filechooser to the right dirname
     set_filechooser_dir();
+	// and make the iconview load the new thumbnails
+	Thumbnails.load_new_thumbs( ImageManager.get_file_list() );    
 
+    
     // activate the buttons
     set_buttons_active( ImageBox.is_loaded() );
 	busy(false);
@@ -554,6 +574,10 @@ void AppWindow::on_file_activated(void)
 
 void AppWindow::set_filechooser_dir(void)
 	{
+	// workaround for (i think) a bug in the filechooser widget signalling	
+   	Preview.load( ImageManager.get_current_file(), 
+			ImageManager.filter_filename( ImageManager.get_current_file() ) ); 		
+			
 	if( FileChooser.is_visible() )
 		{
 		
@@ -597,12 +621,10 @@ std::cout << "SET_FILECHOOSER_DIR: path: " << path << std::endl;
 			
 		// if loading failed, set to the user's home dir
 		else
-			//FileChooser.set_current_folder( Glib::get_home_dir() );
-			
-		// workaround for (i think) a bug in the filechooser widget signalling
-		Preview.load( ImageManager.get_current_file(), 
-			ImageManager.filter_filename( ImageManager.get_current_file() ) );
+			FileChooser.set_current_folder( Glib::get_home_dir() );
+		
    	 	}
+
 	}
 
 // scales an image using the scalefactor only
@@ -874,7 +896,7 @@ void AppWindow::on_print_done(Gtk::PrintOperationResult result, Glib::RefPtr<CPr
 */
 void AppWindow::on_button_show_filechooser(void)
 	{
-	FileChooser.is_visible() ? FileChooser.hide() : FileChooser.show();
+	Tabbed.is_visible() ? Tabbed.hide() : Tabbed.show();
 	
 	// attempt to get the filechooser displayed before altering it's path
 	// doesn't always work which results in the wrong path being
@@ -1200,7 +1222,7 @@ void AppWindow::save_config(void)
 	else
 		{
 		// alow the filechooser to hide before saving the sizes
-		FileChooser.hide();
+		Tabbed.hide();
 		while(Gtk::Main::events_pending()) Gtk::Main::iteration();
 		
 		w_width = get_width();

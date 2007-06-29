@@ -34,22 +34,10 @@ Copyright 2006 Bartek Kostrzewa
 #include <gtkmm/frame.h>
 #include <gtkmm/iconview.h>
 
-#include <gtkmm/liststore.h>
-#include <gtkmm/treemodel.h>
-
 #include "PagePreview.h"
+
+#include "defines.h"
 #include "../config.h"
-
-// the tree model for the iconview in the preview widget
-class CImageListColumns : public Gtk::TreeModelColumnRecord
-{
-public:
-	CImageListColumns()
-		{ add(filenames_column); add(thumbnails_column); }
-
-	Gtk::TreeModelColumn<Glib::ustring> filenames_column;
-	Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> > thumbnails_column;
-};
 
 class CPrintPreviewWidget : public Gtk::VBox
 {
@@ -59,7 +47,7 @@ public:
 	// needs to take all relevant data at time 
 	CPrintPreviewWidget( Glib::ustring&,
 		std::list<Glib::ustring>&,
-		CPrintPreviewWidget** );
+		CPrintPreviewWidget**);
 	~CPrintPreviewWidget();
 
 	Glib::ustring& get_image_filename();
@@ -78,13 +66,9 @@ protected:
 	// object used to pass messages from the loader thread
 	Glib::Dispatcher	imageReady;
 	
-	std::list<Glib::RefPtr<Gdb::Pixbuf>> thumbnails;
-
 	Glib::RefPtr<Gtk::PageSetup> refPageSetup;
 	Glib::RefPtr<Gtk::PrintSettings> refPrintSettings;
 
-	std::list<Glib::ustring> image_filelist;
-	Glib::ustring image_filename;
 	CPagePreview	Page;
 	
 	Gtk::HBox		TopHBox;
@@ -97,10 +81,6 @@ protected:
 	Gtk::Frame  ImageListFrame;
 	
 	Gtk::ScrolledWindow	ImageListScroller;
-	
-	CImageListColumns ImageListColumns;
-	Glib::RefPtr<Gtk::ListStore> refImageList;
-	Gtk::IconView ImageIconView;
 
 private:
 

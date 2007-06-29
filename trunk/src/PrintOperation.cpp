@@ -27,7 +27,7 @@ CPrintOperation::CPrintOperation(
 	Glib::ustring filename, 
 	std::list<Glib::ustring> filelist,
 	const Glib::RefPtr<Gtk::PageSetup>& t_refPageSetup,
-	const Glib::RefPtr<Gtk::PrintSettings>& t_refPrintSettings ) 
+	const Glib::RefPtr<Gtk::PrintSettings>& t_refPrintSettings) 
 	{
 	// nothing else can be set yet because references are still missing
 	// store the refPageSetup which will become our PageSetup and the 
@@ -36,6 +36,7 @@ CPrintOperation::CPrintOperation(
 	refPrintSettings = t_refPrintSettings;
 	image_filelist = filelist;
 	image_filename = filename;
+	
 	ptrPrintPreviewWidget = NULL;
 	
 	signal_custom_widget_apply().connect( sigc::mem_fun( *this, &CPrintOperation::on_custom_widget_apply ) );
@@ -53,7 +54,7 @@ Glib::RefPtr<CPrintOperation> CPrintOperation::create(
 	Glib::ustring filename, 
 	std::list<Glib::ustring> filelist,
 	const Glib::RefPtr<Gtk::PageSetup> &t_refPageSetup,
-	const Glib::RefPtr<Gtk::PrintSettings> &t_refPrintSettings )
+	const Glib::RefPtr<Gtk::PrintSettings> &t_refPrintSettings)
 	{
 	return Glib::RefPtr<CPrintOperation>(new CPrintOperation( 
 		filename, 

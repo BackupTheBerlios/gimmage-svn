@@ -38,25 +38,22 @@ CPrintPreviewWidget::CPrintPreviewWidget( Glib::ustring &filename,
 	std::cout << "CPRINTPREVIEWWIDGET: address pointed to by pointer: " << *t_ptrPrintPreviewWidget << std::endl;
 #endif // DEBUG
 
-	image_filelist = filelist;
+	/* image_filelist = filelist;
 	image_filename = filename;
 	
-	refImageList = Gtk::ListStore::create( ImageListColumns );
+	
 	
 	/*refPageSetup = _refPageSetup;
-	refPrintSettings = _refPrintSettings;*/
+	refPrintSettings = _refPrintSettings;
 	
 	PagePreviewFrame.add(Page);
 	TopHBox.pack_start(PagePreviewFrame,Gtk::PACK_SHRINK);
 	
-	ImageIconView.set_model(refImageList);
-	ImageIconView.set_text_column( ImageListColumns.filenames_column );
-	ImageIconView.set_pixbuf_column( ImageListColumns.thumbnails_column );
-	ImageIconView.set_selection_mode(Gtk::SELECTION_MULTIPLE);
+
 	
 	/* Glib::Thread* const thread = Glib::Thread::create( 
 		sigc::mem_fun(get_parent(),&CPrintPreviewWidget::populate_iconview),
-		true); */
+		true);
 		
 	populate_iconview();
 		
@@ -64,8 +61,7 @@ CPrintPreviewWidget::CPrintPreviewWidget( Glib::ustring &filename,
 
 	ImageListScroller.add(ImageIconView);
 	ImageListScroller.set_size_request(350,0);
-	ImageListScroller.set_policy(Gtk::POLICY_AUTOMATIC,Gtk::POLICY_AUTOMATIC);
-	ImageListFrame.add(ImageListScroller);
+	ImageListScroller.set_policy(Gtk::POLICY_AUTOMATIC,Gtk::POLICY_AUTOMATIC); */
 	TopHBox.pack_start(ImageListFrame,Gtk::PACK_EXPAND_WIDGET);
 	
 	pack_start(TopHBox,Gtk::PACK_SHRINK);
@@ -75,12 +71,12 @@ CPrintPreviewWidget::CPrintPreviewWidget( Glib::ustring &filename,
 	HButtonBox.pack_start( PageSetupButton, Gtk::PACK_SHRINK );
 	pack_start(HButtonBox,Gtk::PACK_SHRINK);
 	
-	Page.load( image_filename, true );
+	Page.load( filename, true );
 	
 	show_all_children();
 	
 	PageSetupButton.signal_clicked().connect(
-		sigc::mem_fun(*globalMainPointer,&CPrintPreviewWidget::on_button_page_setup));
+		sigc::mem_fun(*this,&CPrintPreviewWidget::on_button_page_setup));
 	}
 	
 CPrintPreviewWidget::~CPrintPreviewWidget()
@@ -111,11 +107,11 @@ std::cout << "CPRINTPREVIEWWIDGET::SET_MEMBERS: refPrintSettings " << refPrintSe
 
 	}	
 
-void CPrintPreviewWidget::on_image_ready( Glib::RefPtr<Gdk::Pixbuf>& thumbnail )
+/* void CPrintPreviewWidget::on_image_ready( Glib::RefPtr<Gdk::Pixbuf>& thumbnail )
 	{
-	}
+	} */
 	
-void CPrintPreviewWidget::populate_iconview(void)
+/* void CPrintPreviewWidget::populate_iconview(void)
 	{
 	std::list<Glib::ustring>::iterator f_iterator = image_filelist.begin();
 	std::list<Glib::ustring>::iterator f_end = image_filelist.end();
@@ -142,11 +138,11 @@ void CPrintPreviewWidget::populate_iconview(void)
 			
 		f_iterator++;
 		}
-	}
+	} */
 
-void CPrintPreviewWidget::on_button_page_setup()
+ void CPrintPreviewWidget::on_button_page_setup()
 	{
-	Gtk::TreeModel::Children children = refImageList->children();
+	/* Gtk::TreeModel::Children children = refImageList->children();
 	Gtk::TreeModel::iterator iter = children.begin();
 	Gtk::TreeModel::iterator end = children.end();
 	Gtk::TreeModel::Row row;
@@ -158,9 +154,9 @@ void CPrintPreviewWidget::on_button_page_setup()
 		
 		std::cout << row[ ImageListColumns.filenames_column ] << std::endl;
 		iter++;
-		}
+		} 
 	
-	/* //temporary window to fool run_page_setup_dialog(...) :)
+	//temporary window to fool run_page_setup_dialog(...) :)
 	Gtk::Window window;
 	Glib::RefPtr<Gtk::PageSetup> tempPageSetup = Gtk::run_page_setup_dialog( 
 		window, 

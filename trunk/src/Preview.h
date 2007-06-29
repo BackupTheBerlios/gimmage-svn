@@ -26,6 +26,7 @@ Copyright 2006 Bartek Kostrzewa
 #include <gtkmm/eventbox.h>
 #include <cairomm/cairomm.h>
 
+#include "defines.h"
 #include "../config.h"
 
 class CPreview : public Gtk::DrawingArea

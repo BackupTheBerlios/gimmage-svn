@@ -32,6 +32,9 @@ extern "C" {
 #include <libintl.h>
 }
 
+// test
+#include <glibmm/i18n.h>
+
 // these variables are global... yes it sucks, but it works well, and they're only
 // they holds information where AppWindow can find the icons for the custom buttons
 // and the gimmage icon for the titlebar
@@ -82,10 +85,10 @@ int main(int argc, char *argv[])
 				"  will display file1 and load all other images in file1's directory\n"
 				"  into the image list\n" );
 
-	//Gtk::Main kit(argc,argv,options);
-	AppWindow gimmage(argc, argv);
 	Gtk::Main kit(argc,argv,options);
-	
+	AppWindow gimmage(argc, argv);
+
+
 	// test whether the app icon exists
 	std::fstream fin;
 	fin.open( app_icon_path.c_str() , std::ios::in );

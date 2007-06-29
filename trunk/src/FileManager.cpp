@@ -55,8 +55,6 @@ FileManager::FileManager(int argc, char **argv)
 	   to tell everyone we're up and running */
 	if( OpenFiles(argc,argv) )
 		initialised = true;
-		
-	tempfilename = NULL;	
 	}
 
 FileManager::~FileManager()
@@ -67,9 +65,6 @@ FileManager::~FileManager()
 	
 	magic_close(cookie);
 	filenames.clear();
-	
-	if( tempfilename != NULL )
-		delete[]tempfilename;
 	}
 	
 bool FileManager::OpenFiles(int argc, char **argv)
@@ -139,6 +134,7 @@ std::cout << "OPENFILES: get_current_dir_name(): " << get_current_dir_name() << 
 					}
 				else if(filemode.st_mode & S_IFDIR) 			// if the file is a directory
 					{
+					cwd_checked = true;
 					if((currdir = opendir(filename.c_str())) != NULL) 	// open it
 						{
 						while( (dirinfo = readdir(currdir)) != NULL ) // run through it
@@ -241,12 +237,6 @@ std::cout << "OPENFILES: get_current_dir_name(): " << get_current_dir_name() << 
 
 void FileManager::OpenNewSet( std::list<Glib::ustring> &new_filenames )
 	{
-	if( tempfilename != NULL )
-		{
-		delete[]tempfilename;
-		tempfilename = NULL;
-		}
-	
 	filenames.clear();
 	numfiles = 0;
 	initialised = false;
@@ -283,17 +273,20 @@ void FileManager::OpenNewSet( std::list<Glib::ustring> &new_filenames )
 		}
 	
 	// if we end up with only one file, let's scan that directory
-	tempfilename = new char*[ sizeof( *(filenames.begin())->c_str() ) ];
 	if( numfiles == 1 )
 		{
 		initialised = false;
-		OpenNewSet( 2, tempfilename );
-		}
+		char * tempfilename = new char[ (filenames.begin())->length() + 1 ];
+		strcpy( tempfilename, (filenames.begin())->c_str() );
+		char *arguments[] = { "empty", tempfilename };
+		OpenNewSet( 2, arguments );
 		
-	if( tempfilename != NULL )
-		{
-		delete[]tempfilename;
-		tempfilename = NULL;
+		// free the temporary memory
+#ifdef DEBUG
+	std::cout << "OPENNEWSET(list,FileManager): deleting temporary memory\n";
+#endif // DEBUG
+		
+		delete[] tempfilename;
 		}
 	}
 
@@ -608,7 +601,7 @@ void FileManager::showfiles(void)
 		}
 	}
 	
-std::list<Glib::ustring> FileManager::get_file_list()
+const std::list<Glib::ustring>& FileManager::get_file_list()
 	{
 	return filenames;
 	}	

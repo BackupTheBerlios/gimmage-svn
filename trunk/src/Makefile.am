@@ -1,5 +1,7 @@
 bin_PROGRAMS = gimmage
 gimmage_SOURCES = AppWindow.cpp AppWindow.h \
+ThreadLoadThumbs.cpp ThreadLoadThumbs.h \
+IconView.cpp IconView.h \
 PrintOperation.cpp PrintOperation.h \
 PrintPreviewWidget.cpp PrintPreviewWidget.h \
 PagePreview.cpp PagePreview.h \

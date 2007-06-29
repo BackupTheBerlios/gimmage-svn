@@ -54,7 +54,7 @@ class FileManager
 		Glib::ustring get_previous_file();
 		
 		// return a copy of the filenames list
-		std::list<Glib::ustring> get_file_list();
+		const std::list<Glib::ustring>& get_file_list();
 
 		// this returns the current working directory (where the file that is currently
 		// being displayed resides
@@ -109,7 +109,4 @@ class FileManager
 		struct stat filemode;
 		DIR *currdir;
 		dirent *dirinfo;
-
-		char **tempfilename;
-
 	};
