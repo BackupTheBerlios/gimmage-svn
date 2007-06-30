@@ -29,7 +29,7 @@ CThreadLoadThumbs::CThreadLoadThumbs( const std::list<Glib::ustring> &filelist )
 	
 	// launch the new thread
 	thread_ = Glib::Thread::create(sigc::mem_fun(*this,&CThreadLoadThumbs::thread_function_load_thumbs), false);
-	thread_.set_priority(Glib::THREAD_PRIORITY_LOW);
+	thread_->set_priority(Glib::THREAD_PRIORITY_LOW);
 	}
 	
 // initialise without launching a thread	
@@ -159,5 +159,6 @@ void CThreadLoadThumbs::load_new( const std::list< Glib::ustring> &filelist )
 	terminate = false;
 	thread_ = NULL;
 	thread_ = Glib::Thread::create(sigc::mem_fun(*this,&CThreadLoadThumbs::thread_function_load_thumbs),false);
-	thread_.set_priority(Glib::THREAD_PRIORITY_LOW);
+	thread_->set_priority(Glib::THREAD_PRIORITY_LOW);
 	}	
+
