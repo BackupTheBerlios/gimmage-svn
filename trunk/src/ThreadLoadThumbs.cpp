@@ -29,6 +29,7 @@ CThreadLoadThumbs::CThreadLoadThumbs( const std::list<Glib::ustring> &filelist )
 	
 	// launch the new thread
 	thread_ = Glib::Thread::create(sigc::mem_fun(*this,&CThreadLoadThumbs::thread_function_load_thumbs), false);
+	thread_.set_priority(Glib::THREAD_PRIORITY_LOW);
 	}
 	
 // initialise without launching a thread	
@@ -55,7 +56,9 @@ void CThreadLoadThumbs::thread_function_load_thumbs()
 		{
 		if( terminate )
 			{
+#ifdef DEBUG			
 			std::cout << "THREAD_FUNCTION_LOAD_THUMBS: we're being terminated\n";
+#endif // DEBUG			
 			signal_terminating_.emit();
 			Glib::Mutex::Lock lock (thumbs_mutex_);
 			while( !thumbs_queue_.empty() )
@@ -98,15 +101,14 @@ void CThreadLoadThumbs::thread_function_load_thumbs()
 				std::cerr << "THREAD_FUNCTION_LOAD_THUMBS: FileError\n";
 			}
 		}
-	// set thread_ to NULL when done	
+	
+	// set thread_ to NULL when done successfully
 	thread_ = NULL;
+	signal_done_.emit();
 	}
 	
 Glib::RefPtr<thumbnail> CThreadLoadThumbs::get_next_thumb()
 	{
-#ifdef DEBUG
-	std::cout << "GET_NEXT_THUMB: sending next pixbuf to iconview\n";
-#endif // DEBUG	
 	if( terminate )
 		terminating_.wait( thumbs_mutex_ );
 	else
@@ -115,12 +117,20 @@ Glib::RefPtr<thumbnail> CThreadLoadThumbs::get_next_thumb()
 		{
 		Glib::RefPtr<thumbnail> next_thumbnail = thumbs_queue_.front();
 		thumbs_queue_.pop();
+		
+#ifdef DEBUG
+	std::cout << "GET_NEXT_THUMB: sending next thumbnail to iconview: " << next_thumbnail->basename << std::endl;
+#endif // DEBUG			
+
 		return next_thumbnail;
 		}
 	else
 		{
+#ifdef DEBUG
+	std::cout << "GET_NEXT_THUMB: sending empty thumbnail to iconview\n";
+#endif // DEBUG						
 		Glib::RefPtr<Gdk::Pixbuf> pixbuf;
-		return Glib::RefPtr<thumbnail>( new thumbnail( "empty", pixbuf ) );
+		return Glib::RefPtr<thumbnail>( new thumbnail( "", pixbuf ) );
 		}
 	}
 
@@ -149,4 +159,5 @@ void CThreadLoadThumbs::load_new( const std::list< Glib::ustring> &filelist )
 	terminate = false;
 	thread_ = NULL;
 	thread_ = Glib::Thread::create(sigc::mem_fun(*this,&CThreadLoadThumbs::thread_function_load_thumbs),false);
+	thread_.set_priority(Glib::THREAD_PRIORITY_LOW);
 	}	

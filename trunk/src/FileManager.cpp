@@ -89,7 +89,6 @@ std::cout << "OPENFILES: OpenFiles called \n";
 		} // */
 		
 #ifdef DEBUG
-std::cout << "OPENFILES: OpenFiles called \n";
 std::cout << "OPENFILES: get_current_dir_name(): " << get_current_dir_name() << std::endl;
 #endif // DEBUG
 		
@@ -105,7 +104,7 @@ std::cout << "OPENFILES: get_current_dir_name(): " << get_current_dir_name() << 
 				{
 				Glib::ustring filename;
 				
-				// Resolve any ".." in the filename and make the filename absolute
+				// Resolve any ".." and double / in the filename and make the filename absolute
 				if( Glib::path_is_absolute( argv[i] ) )
 					filename = argv[i] ;
 				else
@@ -117,6 +116,12 @@ std::cout << "OPENFILES: get_current_dir_name(): " << get_current_dir_name() << 
 						filename.rfind( '/', filename.find("..")-2), 
 						filename.find("..")+2 - filename.rfind( '/', filename.find("..")-2) );
 					}
+				while( filename.find("//") != Glib::ustring::npos )
+					filename.erase(
+						filename.find("//"), filename.find("//")+1 );
+				if( filename[ filename.length()-1 ] == '/' )
+					filename.erase( filename.length()-1, filename.length() );
+					
 					
 				if(filemode.st_mode & S_IFREG )  // if the file is a regular file
 					{

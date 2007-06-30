@@ -26,8 +26,11 @@ CIconView::CIconView () :
 	{
 	// connect to the cross-thread signal which tells us to fetch a new thumbnail
 	ThreadLoadThumbs.signal_new_thumb_ready_.connect( sigc::mem_fun( *this, &CIconView::on_new_thumb_ready ) );
-	ThreadLoadThumbs.signal_terminating_.connect( sigc::mem_fun( *this, &CIconView::on_terminating ) );
-	ThreadLoadThumbs.signal_terminated_.connect( sigc::mem_fun( *this, &CIconView::on_terminated ) );
+	//ThreadLoadThumbs.signal_terminating_.connect( sigc::mem_fun( *this, &CIconView::on_terminating ) );
+	//ThreadLoadThumbs.signal_terminated_.connect( sigc::mem_fun( *this, &CIconView::on_terminated ) );
+	
+	// when the iconview has loaded completely, select the current image and set the bool
+	ThreadLoadThumbs.signal_done_.connect( sigc::mem_fun( *this, &CIconView::on_done ) );
 	
 	add( myIconView );
 	set_policy( Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC );
@@ -39,9 +42,8 @@ CIconView::CIconView () :
 	myIconView.set_pixbuf_column( ImageListColumns.thumbnails_column );
 	myIconView.set_selection_mode(Gtk::SELECTION_MULTIPLE);	
 	
-	f_iterator = image_filelist.begin();
-	f_end = image_filelist.end();
 	terminating = false;
+	loaded = false;
 	}
 
 void CIconView::on_new_thumb_ready()
@@ -50,37 +52,65 @@ void CIconView::on_new_thumb_ready()
 		{
 		Glib::RefPtr<thumbnail> next_thumbnail = ThreadLoadThumbs.get_next_thumb();
 
-		Gtk::TreeModel::iterator iter;
-		Gtk::TreeModel::Row row;
+		if( next_thumbnail->basename != "" )
+			{
+			Gtk::TreeModel::iterator iter;
+			Gtk::TreeModel::Row row;
 	
-		iter = refImageList->append();
-		row = *iter;
+			iter = refImageList->append();
+			row = *iter;
 		
-		row[ ImageListColumns.filenames_column ] = next_thumbnail->basename;
-		row[ ImageListColumns.thumbnails_column ] = next_thumbnail->pixbuf;
+			row[ ImageListColumns.filenames_column ] = next_thumbnail->basename;
+			row[ ImageListColumns.thumbnails_column ] = next_thumbnail->pixbuf;
+			}
 		}
 	}
 	
 void CIconView::on_terminating()
 	{
+#ifdef DEBUG	
 	std::cout << "ON_TERMINATING: whoops the loader is terminating!\n";
+#endif // DEBUG	
 	terminating = true;
 	}
 
 void CIconView::on_terminated()
 	{
+#ifdef DEBUG	
 	std::cout << "ON_TERMINATING: whoops the loader has terminated!\n";
+#endif // DEBUG	
 	terminating = false;
-	}		
+	}	
+	
+void CIconView::on_done()
+	{
+#ifdef DEBUG	
+	std::cout << "ON_DONE: iconview has loade all thumbnails!\n";
+#endif // DEBUG	
+	loaded = true;
+	}			
+	
+bool CIconView::is_loaded()
+	{
+	return loaded;
+	}	
 	
 void CIconView::load_new_thumbs( const std::list<Glib::ustring> &filelist )
 	{
-	// clear the current iconview model	
-	image_filelist.clear();
-	image_filelist = filelist;
-	refImageList->clear();
-	
-	ThreadLoadThumbs.load_new( image_filelist );
+	if( image_filelist != filelist )
+		{
+		loaded = false;
+		// clear the current iconview model	
+		image_filelist.clear();
+		image_filelist = filelist;
+		refImageList->clear();
+		
+		ThreadLoadThumbs.load_new( image_filelist );
+		}
+	else
+		{
+		// TODO: select the right current thumbnail
+		}
 	}
 	
 

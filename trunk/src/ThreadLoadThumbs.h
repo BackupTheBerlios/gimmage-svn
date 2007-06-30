@@ -53,9 +53,11 @@ public:
 	
 	bool is_terminating();
 
-	Glib::Dispatcher    signal_new_thumb_ready_;
-	Glib::Dispatcher	signal_terminating_;
-	Glib::Dispatcher	signal_terminated_;
+	Glib::Dispatcher    signal_new_thumb_ready_; // will be emitted when a new thumbnail has been loaded
+	Glib::Dispatcher	signal_terminating_; // will be emitted when a thread is terminated
+	Glib::Dispatcher	signal_terminated_; // will be emitted when a terminating thread is cleaned up
+	Glib::Dispatcher	signal_done_; // will be emitted when a thread has completed successfully
+	
 	Glib::RefPtr<thumbnail> get_next_thumb();
 	
 	std::queue< Glib::RefPtr<thumbnail> > thumbs_queue_;

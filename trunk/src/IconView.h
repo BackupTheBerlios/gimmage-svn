@@ -68,11 +68,16 @@ public:
 	~CIconView() {}
 
 	void load_new_thumbs( const std::list<Glib::ustring>& );
+	
+	bool is_loaded();
 
 protected:
 	void on_new_thumb_ready();
 	void on_terminating();
 	void on_terminated();
+	void on_done();
+	
+	bool loaded;
 
 	Gtk::IconView	myIconView;
 	std::list<Glib::ustring> image_filenames;
