@@ -19,7 +19,7 @@ Copyright 2006 Bartek Kostrzewa
 
 // gimmage: IconView.cpp
 
-#include "IconView.h"
+#include "IconView.h"i
 
 CIconView::CIconView () :
 	ThreadLoadThumbs()
@@ -32,15 +32,22 @@ CIconView::CIconView () :
 	// when the iconview has loaded completely, select the current image and set the bool
 	ThreadLoadThumbs.signal_done_.connect( sigc::mem_fun( *this, &CIconView::on_done ) );
 	
-	add( myIconView );
+	add( Thumbnails );
 	set_policy( Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC );
 	
 	// set up the treemodel for the iconview and connect the view to the model
 	refImageList = Gtk::ListStore::create( ImageListColumns );
-	myIconView.set_model(refImageList);
-	myIconView.set_text_column( ImageListColumns.filenames_column );
-	myIconView.set_pixbuf_column( ImageListColumns.thumbnails_column );
-	myIconView.set_selection_mode(Gtk::SELECTION_MULTIPLE);	
+	Thumbnails.set_model(refImageList);
+	Thumbnails.set_text_column( ImageListColumns.basenames_column );
+	Thumbnails.set_pixbuf_column( ImageListColumns.thumbnails_column );
+	Thumbnails.set_selection_mode(Gtk::SELECTION_MULTIPLE);	
+	
+	
+	listTargets.push_back( Gtk::TargetEntry("text/uri-list") );
+  	listTargets.push_back( Gtk::TargetEntry("STRING") );	
+	Thumbnails.enable_model_drag_source(listTargets);
+	
+	Thumbnails.signal_drag_data_get().connect( sigc::mem_fun( *this, &CIconView::on_drag_data_get ));
 	
 	terminating = false;
 	loaded = false;
@@ -48,11 +55,12 @@ CIconView::CIconView () :
 
 void CIconView::on_new_thumb_ready()
 	{
+	// we don't want to block the mutex if the thread is terminating
 	if( !ThreadLoadThumbs.is_terminating() )
 		{
 		Glib::RefPtr<thumbnail> next_thumbnail = ThreadLoadThumbs.get_next_thumb();
 
-		if( next_thumbnail->basename != "" )
+		if( next_thumbnail->filename != "" )
 			{
 			Gtk::TreeModel::iterator iter;
 			Gtk::TreeModel::Row row;
@@ -60,8 +68,10 @@ void CIconView::on_new_thumb_ready()
 			iter = refImageList->append();
 			row = *iter;
 		
-			row[ ImageListColumns.filenames_column ] = next_thumbnail->basename;
+			// store basename, pixbuf and full path in the model
+			row[ ImageListColumns.basenames_column ] = Glib::path_get_basename( next_thumbnail->filename );
 			row[ ImageListColumns.thumbnails_column ] = next_thumbnail->pixbuf;
+			row[ ImageListColumns.filenames_column ] = next_thumbnail->filename;
 			}
 		}
 	}
@@ -86,7 +96,9 @@ void CIconView::on_done()
 	{
 #ifdef DEBUG	
 	std::cout << "ON_DONE: iconview has loade all thumbnails!\n";
-#endif // DEBUG	
+#endif // DEBUG
+	
+	// when the loading thread is completed, we're ready for other operations
 	loaded = true;
 	}			
 	
@@ -97,9 +109,10 @@ bool CIconView::is_loaded()
 	
 void CIconView::load_new_thumbs( const std::list<Glib::ustring> &filelist )
 	{
+	loaded = false;
+	// check whether we already have this filelist loaded
 	if( image_filelist != filelist )
 		{
-		loaded = false;
 		// clear the current iconview model	
 		image_filelist.clear();
 		image_filelist = filelist;
@@ -110,7 +123,33 @@ void CIconView::load_new_thumbs( const std::list<Glib::ustring> &filelist )
 	else
 		{
 		// TODO: select the right current thumbnail
+		loaded = true;
 		}
 	}
 	
+void CIconView::on_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, 
+	Gtk::SelectionData& selection_data, guint info, guint time)
+	{
+	std::list<Gtk::TreeModel::Path> selected_items = Thumbnails.get_selected_items();
+	
+	std::list<Gtk::TreeModel::Path>::iterator path_list_iter = selected_items.begin();
+	std::list<Gtk::TreeModel::Path>::iterator path_list_end = selected_items.end();
+	
+	
+	//std::list<Glib::ustring>* filenames = new std::list<Glib::ustring>;
+	
+	std::list<Glib::ustring> filenames;
+	while( path_list_iter != path_list_end )
+		{
+		Gtk::TreeModel::iterator model_iter = refImageList->get_iter( *path_list_iter );
+		Gtk::TreeModel::Row row = *model_iter;
+		
+		std::cout << row[ ImageListColumns.filenames_column ] << std::endl;
+		
+		filenames.push_back( row[ ImageListColumns.filenames_column] );
 
+		path_list_iter++;
+		}
+	
+	selection_data.set_uris( filenames );
+	}

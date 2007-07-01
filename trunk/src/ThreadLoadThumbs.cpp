@@ -37,10 +37,6 @@ CThreadLoadThumbs::CThreadLoadThumbs()
 	{
 	thread_ = NULL;
 	terminate = false;
-	}	
-
-CThreadLoadThumbs::~CThreadLoadThumbs()
-	{
 	}
 	
 void CThreadLoadThumbs::thread_function_load_thumbs()
@@ -59,13 +55,18 @@ void CThreadLoadThumbs::thread_function_load_thumbs()
 #ifdef DEBUG			
 			std::cout << "THREAD_FUNCTION_LOAD_THUMBS: we're being terminated\n";
 #endif // DEBUG			
+			// emit a dispatcher signal that we're being terminated
 			signal_terminating_.emit();
+			
+			//block access to class elements
 			Glib::Mutex::Lock lock (thumbs_mutex_);
+			// empty the queue of thumbnails
 			while( !thumbs_queue_.empty() )
 				thumbs_queue_.pop();
+	
 			image_filelist.clear();
-			terminating_.broadcast();
-			signal_terminated_.emit();
+			terminating_.broadcast(); // broadcast a signal to the methods waiting for our termination
+			signal_terminated_.emit(); // emit a dispatcher signal that we're done
 			throw Glib::Thread::Exit();
 			}
 		try
@@ -80,7 +81,7 @@ void CThreadLoadThumbs::thread_function_load_thumbs()
 				Glib::Mutex::Lock lock( thumbs_mutex_ );
 				
 				thumbs_queue_.push(	Glib::RefPtr<thumbnail>( new thumbnail( 
-						Glib::filename_display_basename( *f_iterator ),
+						*f_iterator,
 						pixbuf ) ) ); 
 #ifdef DEBUG								
 	std::cout << "THREAD_FUNCTION_LOAD_THUMBS: thumbnail ready: " << *f_iterator << std::endl;
@@ -92,27 +93,31 @@ void CThreadLoadThumbs::thread_function_load_thumbs()
 			
 			f_iterator++;	
 			}
+		
+		// when catching exceptions wee need to make sure to still increment the 
+		// file iterator or we'll end up in an infinite loop	
 		catch(Gdk::PixbufError & error)
 			{
+				f_iterator++;
 				std::cerr << "THREAD_FUNCTION_LOAD_THUMBS: PixbufError\n";
 			}
 		catch(Glib::FileError & error)
 			{
+				f_iterator++;
 				std::cerr << "THREAD_FUNCTION_LOAD_THUMBS: FileError\n";
 			}
 		}
 	
 	// set thread_ to NULL when done successfully
 	thread_ = NULL;
+	
+	// emit a dispatcher signal that we completed loading successfully
 	signal_done_.emit();
 	}
 	
 Glib::RefPtr<thumbnail> CThreadLoadThumbs::get_next_thumb()
 	{
-	if( terminate )
-		terminating_.wait( thumbs_mutex_ );
-	else
-		Glib::Mutex::Lock lock (thumbs_mutex_);
+	Glib::Mutex::Lock lock (thumbs_mutex_);
 	if( !thumbs_queue_.empty() )
 		{
 		Glib::RefPtr<thumbnail> next_thumbnail = thumbs_queue_.front();

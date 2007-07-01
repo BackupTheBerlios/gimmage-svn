@@ -39,8 +39,9 @@ class CImageListColumns : public Gtk::TreeModelColumnRecord
 {
 public:
 	CImageListColumns()
-		{ add(filenames_column); add(thumbnails_column); }
+		{ add(basenames_column); add(thumbnails_column); add(filenames_column); }
 
+	Gtk::TreeModelColumn<Glib::ustring> basenames_column;
 	Gtk::TreeModelColumn<Glib::ustring> filenames_column;
 	Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> > thumbnails_column;
 };
@@ -70,16 +71,24 @@ public:
 	void load_new_thumbs( const std::list<Glib::ustring>& );
 	
 	bool is_loaded();
+	
+  // Drag Targets:
+ 	 std::list<Gtk::TargetEntry> listTargets;
+
 
 protected:
+	// event handlers
 	void on_new_thumb_ready();
 	void on_terminating();
 	void on_terminated();
 	void on_done();
 	
+	// drag data sender
+	virtual void on_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection_data, guint info, guint time);
+	
 	bool loaded;
 
-	Gtk::IconView	myIconView;
+	Gtk::IconView	Thumbnails;
 	std::list<Glib::ustring> image_filenames;
 
 	CThreadLoadThumbs ThreadLoadThumbs;

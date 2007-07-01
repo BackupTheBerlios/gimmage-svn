@@ -20,7 +20,6 @@
 
 #include "AppWindow.h"
 #include "defines.h"
-
 #include "../config.h"
 
 extern "C" {
@@ -173,13 +172,13 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 	FileChooser.set_events( Gdk::ALL_EVENTS_MASK );
 		
 	// set up drag source and drop target for filenames from filechooser filechooser
-	std::list<Gtk::TargetEntry> dragndrop;
-	dragndrop.push_back( Gtk::TargetEntry("text/uri-list") );
-	dragndrop.push_back( Gtk::TargetEntry("text/plain") );
-	dragndrop.push_back( Gtk::TargetEntry("STRING" ) );
-	dragndrop.push_back( Gtk::TargetEntry("application/x-rootwindow-drop") );
+	std::list<Gtk::TargetEntry> listTargets;
+	listTargets.push_back( Gtk::TargetEntry("text/uri-list") );
+	listTargets.push_back( Gtk::TargetEntry("text/plain") );
+	listTargets.push_back( Gtk::TargetEntry("STRING" ) );
+	listTargets.push_back( Gtk::TargetEntry("application/x-rootwindow-drop") );
 
-	ImageBox.drag_dest_set(dragndrop);
+	ImageBox.drag_dest_set(listTargets);
 	ImageBox.signal_drag_data_received().connect( sigc::mem_fun(*this,&AppWindow::on_drag_data_received) );
 
 	// Drag scrolling the image
@@ -411,7 +410,6 @@ void AppWindow::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& cont
 	std::cout << "ON_DRAG_DATA_RECEIVED: data: " << selection_data.get_data_as_string() << std::endl;
 #endif // DEBUG
 
-
 	if (selection_data.get_data_type() == "text/uri-list")
 		{
 		std::list<Glib::ustring> new_filenames = selection_data.get_uris();
@@ -434,48 +432,13 @@ void AppWindow::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& cont
 			curl_free( tempfilename );
 
 #ifdef DEBUG			
-	std::cout << "ON_DRAG_DATA_RECEIVED: filename: " << *iter << std::endl;
+	std::cout << "ON_DRAG_DATA_RECEIVED: URI: " << *iter << std::endl;
 #endif // DEBUG
 
 			iter++;
 			counter++;
 			}
-		
-		if( counter == 0 )
-			return;
-		
-		// if we have only one file, we use the argc/argv loader
-		else if( counter == 1 )
-			open_new_file( *begin );
-		
-		// otherwise we pass the list to the filemanager directly
-		// (because then we only open the files given)
-		else if( counter > 1 )
-			{
-			busy(true);
-			ImageManager.OpenNewSet( new_filenames );
-			
-			// set the title, load the image
-			set_title( "gimmage: " + ImageManager.get_current_file() );
-			
-			ImageBox.LoadImage(	ImageManager.get_current_file(),
-				&scalefactor, 
-				(int)h_scroller->get_page_size(),
-				(int)v_scroller->get_page_size());
-				
-	    	// make the iconview load new thumbnails
-			Thumbnails.load_new_thumbs( ImageManager.get_file_list() );
-		    // and finally, set the filechooser to the right dirname
-	    	set_filechooser_dir();
-
-
-	    	// activate the buttons
-	    	set_buttons_active( ImageBox.is_loaded() );
-			busy(false);
-
-			// since we now have a new image, let's make sure the save button is off!
-			Button_Save.set_sensitive( false );	
-			}	
+		open_list( new_filenames, counter );
 		}
 	
 	// if we're given plain text, maybe it's still an uri or a filename, we should better check
@@ -499,6 +462,46 @@ void AppWindow::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& cont
 	context->drag_finish(true, false, time);
 	}
 
+// open a new list of files gotten by drag_data_received
+void AppWindow::open_list( std::list<Glib::ustring> new_filenames, int counter )
+	{
+	const std::list<Glib::ustring>::iterator begin = new_filenames.begin();
+	if( counter == 0 )
+		return;
+	
+	// if we have only one file, we use the argc/argv loader
+	else if( counter == 1 )
+		open_new_file( *begin );
+	
+	// otherwise we pass the list to the filemanager directly
+	// (because then we only open the files given)
+	else if( counter > 1 )
+		{
+		busy(true);
+		ImageManager.OpenNewSet( new_filenames );
+		
+		// set the title, load the image
+		set_title( "gimmage: " + ImageManager.get_current_file() );
+		
+		ImageBox.LoadImage(	ImageManager.get_current_file(),
+			&scalefactor, 
+			(int)h_scroller->get_page_size(),
+			(int)v_scroller->get_page_size());
+			
+		// make the iconview load new thumbnails
+		Thumbnails.load_new_thumbs( ImageManager.get_file_list() );
+		// and finally, set the filechooser to the right dirname
+		set_filechooser_dir();
+
+
+		// activate the buttons
+		set_buttons_active( ImageBox.is_loaded() );
+		busy(false);
+
+		// since we now have a new image, let's make sure the save button is off!
+		Button_Save.set_sensitive( false );	
+		}		
+	}
 
 void AppWindow::busy(bool showwatch)
 	{

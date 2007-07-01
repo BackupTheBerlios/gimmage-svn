@@ -159,6 +159,12 @@ class AppWindow : public Gtk::Window
 		void print(Gtk::PrintOperationAction print_action);
 		void on_print_done(Gtk::PrintOperationResult,
 			Glib::RefPtr<CPrintOperation>* );
+			
+	// file loaders 
+		// open a single file	
+		virtual void open_new_file( Glib::ustring );	
+		// open a list of files (the int contains the count of valid filenames
+		virtual void open_list( std::list<Glib::ustring>, int );
 		
 	// Event Handlers
 	   		
@@ -216,7 +222,6 @@ class AppWindow : public Gtk::Window
 
 		// load the file when we activate it in the filechooser
 		virtual void on_file_activated(void);
-		virtual void open_new_file( Glib::ustring );
 		
 		// handler to update the preview in the filechooser
 		virtual void on_update_preview(void);

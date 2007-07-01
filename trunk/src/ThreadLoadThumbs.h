@@ -30,24 +30,40 @@ Copyright 2006 Bartek Kostrzewa
 #include "../config.h"
 
 // derive from Object to support RefPtr
+// thumbnail object which will be sent to the iconview
 class thumbnail : public Glib::Object
 {
 public:
-	thumbnail( Glib::ustring in_basename, 
+	thumbnail( Glib::ustring in_filename, 
 			   Glib::RefPtr<Gdk::Pixbuf> &in_pixbuf ) : 
-			   basename( in_basename ),
-			   pixbuf( in_pixbuf ) {}
+			   filename( in_filename ),
+			   pixbuf( in_pixbuf ) 
+		{
+		std::cout << filename << " created\n";
+		}
+	
+	~thumbnail()
+		{
+		std::cout << filename << " destroyed\n";
+		}
 			   
-	Glib::ustring basename;
+	Glib::ustring filename;
 	Glib::RefPtr<Gdk::Pixbuf> pixbuf;
 };
 
+
+// threaded worker class to load thumbnails given a list of filenames
+// of images
 class CThreadLoadThumbs : public sigc::trackable
 {
 public:
 	CThreadLoadThumbs( const std::list<Glib::ustring>& );
 	CThreadLoadThumbs();
-	virtual ~CThreadLoadThumbs();
+	virtual ~CThreadLoadThumbs()
+		{
+		// make sure we unlock the mutex
+		thumbs_mutex_.unlock();
+		}
 	  
 	void load_new( const std::list<Glib::ustring>& );
 	
@@ -68,15 +84,12 @@ private:
 	// we keep a local copy for safety
 	std::list<Glib::ustring> image_filelist;
 
-	Glib::Cond	reading_;
 	Glib::Cond terminating_;
 	Glib::Thread*	thread_;
 
 	bool terminate;
 
 	void thread_function_load_thumbs(); // create thumbs , add to queue
-	 
-
 	
 };	
 
