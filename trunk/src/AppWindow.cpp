@@ -210,6 +210,8 @@ AppWindow::AppWindow(int argnum, char **argcon) :
 
 	Button_Quit.signal_clicked().connect(sigc::mem_fun(*this, &AppWindow::on_button_quit) );
 	
+	Thumbnails.ThumbsIconView.signal_item_activated().connect( sigc::mem_fun(*this, &AppWindow::on_thumbnails_item_activated ) );
+	
 	// handle closing of AppWindow
 	signal_delete_event().connect(sigc::mem_fun(*this, &AppWindow::on_delete_event) );
 	
@@ -571,9 +573,17 @@ void AppWindow::on_update_preview(void)
 	}
 
 void AppWindow::on_file_activated(void)
-{
+	{
 	open_new_file( FileChooser.get_filename() );
-}
+	}
+
+void AppWindow::on_thumbnails_item_activated( const Gtk::TreeModel::Path &path )
+	{
+	Gtk::TreeModel::iterator model_iter = Thumbnails.refImageList->get_iter( path );
+	Gtk::TreeModel::Row row = *model_iter;
+	open_new_file( row[ Thumbnails.ImageListColumns.filenames_column] );		
+	}
+
 
 void AppWindow::set_filechooser_dir(void)
 	{

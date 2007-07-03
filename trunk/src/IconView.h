@@ -67,8 +67,15 @@ public:
 		std::list<Glib::ustring>&);
 	
 	~CIconView() {}
+	
+	// we want access to the signals from outside, so the iconview needs to be public
+	Gtk::IconView	ThumbsIconView;
+	// to access elements in the model from outside, these have to be public
+	Glib::RefPtr<Gtk::ListStore> refImageList;
+	CImageListColumns ImageListColumns;
 
 	void load_new_thumbs( const std::list<Glib::ustring>& );
+
 	
 	bool is_loaded();
 	
@@ -87,16 +94,14 @@ protected:
 	virtual void on_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection_data, guint info, guint time);
 	
 	bool loaded;
-
-	Gtk::IconView	Thumbnails;
+	
 	std::list<Glib::ustring> image_filenames;
 
 	CThreadLoadThumbs ThreadLoadThumbs;
 	bool terminating;
 
-	CImageListColumns ImageListColumns;
-	Glib::RefPtr<Gtk::ListStore> refImageList;
-	Gtk::IconView ImageIconView;
+	
+	
 	
 	std::vector< Glib::RefPtr<Gdk::Pixbuf> > thumbnails;
 

@@ -19,7 +19,7 @@ Copyright 2006 Bartek Kostrzewa
 
 // gimmage: IconView.cpp
 
-#include "IconView.h"i
+#include "IconView.h"
 
 CIconView::CIconView () :
 	ThreadLoadThumbs()
@@ -32,22 +32,22 @@ CIconView::CIconView () :
 	// when the iconview has loaded completely, select the current image and set the bool
 	ThreadLoadThumbs.signal_done_.connect( sigc::mem_fun( *this, &CIconView::on_done ) );
 	
-	add( Thumbnails );
+	add( ThumbsIconView );
 	set_policy( Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC );
 	
 	// set up the treemodel for the iconview and connect the view to the model
 	refImageList = Gtk::ListStore::create( ImageListColumns );
-	Thumbnails.set_model(refImageList);
-	Thumbnails.set_text_column( ImageListColumns.basenames_column );
-	Thumbnails.set_pixbuf_column( ImageListColumns.thumbnails_column );
-	Thumbnails.set_selection_mode(Gtk::SELECTION_MULTIPLE);	
+	ThumbsIconView.set_model(refImageList);
+	ThumbsIconView.set_text_column( ImageListColumns.basenames_column );
+	ThumbsIconView.set_pixbuf_column( ImageListColumns.thumbnails_column );
+	ThumbsIconView.set_selection_mode(Gtk::SELECTION_MULTIPLE);	
 	
 	
 	listTargets.push_back( Gtk::TargetEntry("text/uri-list") );
   	listTargets.push_back( Gtk::TargetEntry("STRING") );	
-	Thumbnails.enable_model_drag_source(listTargets);
+	ThumbsIconView.enable_model_drag_source(listTargets);
 	
-	Thumbnails.signal_drag_data_get().connect( sigc::mem_fun( *this, &CIconView::on_drag_data_get ));
+	ThumbsIconView.signal_drag_data_get().connect( sigc::mem_fun( *this, &CIconView::on_drag_data_get ));
 	
 	terminating = false;
 	loaded = false;
@@ -130,7 +130,7 @@ void CIconView::load_new_thumbs( const std::list<Glib::ustring> &filelist )
 void CIconView::on_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, 
 	Gtk::SelectionData& selection_data, guint info, guint time)
 	{
-	std::list<Gtk::TreeModel::Path> selected_items = Thumbnails.get_selected_items();
+	std::list<Gtk::TreeModel::Path> selected_items = ThumbsIconView.get_selected_items();
 	
 	std::list<Gtk::TreeModel::Path>::iterator path_list_iter = selected_items.begin();
 	std::list<Gtk::TreeModel::Path>::iterator path_list_end = selected_items.end();

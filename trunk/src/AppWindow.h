@@ -19,7 +19,12 @@ Copyright 2006 Bartek Kostrzewa
 
 // gimmage - AppWindow.h
 
+#include <gtkmm/treemodel.h>
+
 #include <gtkmm/main.h>
+#include <gdkmm/cursor.h>
+#include <gtkmm/stockid.h>
+
 #include <gtkmm/paned.h>
 #include <gtkmm/window.h>
 #include <gtkmm/scrolledwindow.h>
@@ -33,9 +38,8 @@ Copyright 2006 Bartek Kostrzewa
 #include <gtkmm/alignment.h>
 #include <gtkmm/adjustment.h>
 #include <gtkmm/scrollbar.h>
-#include <gdkmm/cursor.h>
-#include <gtkmm/stockid.h>
-#include <gdkmm/cursor.h>
+
+
 
 #include "ImageEventBox.h"
 #include "FileManager.h"
@@ -222,6 +226,10 @@ class AppWindow : public Gtk::Window
 
 		// load the file when we activate it in the filechooser
 		virtual void on_file_activated(void);
+		
+		// load the file when we activate it in the iconview
+		virtual void on_thumbnails_item_activated( const Gtk::TreeModel::Path & );
+		
 		
 		// handler to update the preview in the filechooser
 		virtual void on_update_preview(void);
