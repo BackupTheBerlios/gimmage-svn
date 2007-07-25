@@ -30,21 +30,10 @@ Copyright 2006 Bartek Kostrzewa
 #include <gdkmm/pixbuf.h>
 
 #include "ThreadLoadThumbs.h"
+#include "ImageListColumns.h"
 
 #include "defines.h"
 #include "../config.h"
-
-// the tree model for the iconview in the preview widget
-class CImageListColumns : public Gtk::TreeModelColumnRecord
-{
-public:
-	CImageListColumns()
-		{ add(basenames_column); add(thumbnails_column); add(filenames_column); }
-
-	Gtk::TreeModelColumn<Glib::ustring> basenames_column;
-	Gtk::TreeModelColumn<Glib::ustring> filenames_column;
-	Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> > thumbnails_column;
-};
 
 /* 	This is a very contrived class as it makes use of a threaded thumbnail loader
 	ThreadLoadThumbs to load the thumbnails for the iconview. 
@@ -70,13 +59,17 @@ public:
 	
 	// we want access to the signals from outside, so the iconview needs to be public
 	Gtk::IconView	ThumbsIconView;
-	// to access elements in the model from outside, these have to be public
-	Glib::RefPtr<Gtk::ListStore> refImageList;
-	CImageListColumns ImageListColumns;
 
 	void load_new_thumbs( const std::list<Glib::ustring>& );
 
+// get methods for iconview contents so that we don't need to expose the model
+	Glib::ustring get_filename( const Gtk::TreeModel::Path&);
+	Glib::ustring get_basename( const Gtk::TreeModel::Path& );
+	const Glib::RefPtr<Gdk::Pixbuf> get_thumbnail( const Gtk::TreeModel::Path& );
 	
+// read access to the model must be provided to outside classes
+	const Glib::RefPtr<Gtk::ListStore> get_model(void);
+
 	bool is_loaded();
 	
   // Drag Targets:
@@ -84,6 +77,9 @@ public:
 
 
 protected:
+	Glib::RefPtr<Gtk::ListStore> refImageList;
+	CImageListColumns ImageListColumns;
+
 	// event handlers
 	void on_new_thumb_ready();
 	void on_terminating();

@@ -20,10 +20,14 @@ Copyright 2006 Bartek Kostrzewa
 // gimmage: Config.h
 /* 	Class for configuration managment */
 
-#include <list>
-#include <string>
+// autotools config.h
+#include "../config.h"
+#include "defines.h"
 
-#include "Param.h"
+#include "glibmm.h"
+
+#include <fstream>
+#include <iostream>
 
 class CConfig
 {
@@ -34,12 +38,36 @@ public:
 	void save();
 	void load();
 	
-	int Size() { return sizeof(param); }
-	std::string Name() { return param.get_name(); }
+/* 	int get_( void ) { return ; }
+	void set_( int param ) {  = param; }
+	
+	int get_( void ) { return ; }
+	void set_( int param ) {  = param; }
+	
+	int get_( void ) { return ; }
+	void set_( int param ) {  = param; }
+	
+	int get_( void ) { return ; }
+	void set_( int param ) {  = param; }
+	
+	int get_( void ) { return ; }
+	void set_( int param ) {  = param; }
+	
+	int get_( void ) { return ; }
+	void set_( int param ) {  = param; }
+	
+	int get_( void ) { return ; }
+	void set_( int param ) {  = param; }
+
+	int get_i_width( void );
+	void set_i_width( int );
+	
+	int get_w_width( void ) { return w_width; }
+	int set_w_width( int param ) { w_width = param; } */
 
 private:
-	Param<int> param;
-	
-	/* damn this doesn't work */
-	std::list< Param > params; // a list holding all our parameters
+	int i_height;
+	int i_width;
+	int w_height;
+	int w_width;
 };

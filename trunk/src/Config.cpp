@@ -20,10 +20,6 @@ Copyright 2006 Bartek Kostrzewa
 // gimmage: Config.cpp
 /* 	Class for configuration managment */
 
-// autotools config.h
-#include "../config.h"
-#include "defines.h"
-
 #include "Config.h"
 
 CConfig::CConfig()
@@ -36,6 +32,14 @@ CConfig::~CConfig()
 
 void CConfig::load()
 	{
+	std::list<Glib::ustring> lines;
+	
+	Glib::ustring homedir = Glib::get_home_dir();
+	Glib::ustring filename = ".gimmagerc";
+	
+	Glib::ustring configfile = Glib::build_filename( homedir, filename );
+	
+	std::ifstream gimmagerc;
 	}
 	
 void CConfig::save()

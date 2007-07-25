@@ -105,8 +105,39 @@ void CIconView::on_done()
 bool CIconView::is_loaded()
 	{
 	return loaded;
+	}
+
+// get method to receive the a refptr to the model
+const Glib::RefPtr<Gtk::ListStore> CIconView::get_model(void)
+	{
+	return refImageList;
+	}
+
+// get methods for iconview contents so that we don't need to expose the model
+Glib::ustring CIconView::get_filename( const Gtk::TreeModel::Path &path )
+	{
+	Gtk::TreeModel::iterator iter = refImageList->get_iter( path );
+	Gtk::TreeModel::Row row = *iter;
+
+	return row[ ImageListColumns.filenames_column ];
 	}	
-	
+
+Glib::ustring CIconView::get_basename( const Gtk::TreeModel::Path &path )
+	{
+	Gtk::TreeModel::iterator iter = refImageList->get_iter( path );
+	Gtk::TreeModel::Row row = *iter;
+
+	return row[ ImageListColumns.basenames_column ];
+	}
+
+const Glib::RefPtr<Gdk::Pixbuf> CIconView::get_thumbnail( const Gtk::TreeModel::Path &path )
+	{
+	Gtk::TreeModel::iterator iter = refImageList->get_iter( path );
+	Gtk::TreeModel::Row row = *iter;
+
+	return row[ ImageListColumns.thumbnails_column ];
+	}
+
 void CIconView::load_new_thumbs( const std::list<Glib::ustring> &filelist )
 	{
 	loaded = false;

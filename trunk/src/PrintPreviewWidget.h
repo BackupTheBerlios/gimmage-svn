@@ -32,7 +32,9 @@ Copyright 2006 Bartek Kostrzewa
 #include <gtkmm/box.h>
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/frame.h>
-#include <gtkmm/iconview.h>
+#include <gtkmm/treemodel.h>
+#include <gtkmm/treeview.h>
+
 
 #include "PagePreview.h"
 

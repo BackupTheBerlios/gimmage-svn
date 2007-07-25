@@ -579,20 +579,16 @@ void AppWindow::on_file_activated(void)
 
 void AppWindow::on_thumbnails_item_activated( const Gtk::TreeModel::Path &path )
 	{
-	Gtk::TreeModel::iterator model_iter = Thumbnails.refImageList->get_iter( path );
-	Gtk::TreeModel::Row row = *model_iter;
-	open_new_file( row[ Thumbnails.ImageListColumns.filenames_column] );		
+	open_new_file( Thumbnails.get_filename( path ) );	
 	}
 
 
 void AppWindow::set_filechooser_dir(void)
 	{
 	// workaround for (i think) a bug in the filechooser widget signalling	
+	// not emitting update_preview when select_filename or set_filename are acalled
    	Preview.load( ImageManager.get_current_file(), 
 			ImageManager.filter_filename( ImageManager.get_current_file() ) ); 		
-			
-	if( FileChooser.is_visible() )
-		{
 		
 #ifdef DEBUG
 std::cout << "SET_FILECHOOSER_DIR: Before set_file_chooser_dir()\n";
@@ -603,23 +599,23 @@ std::cout << "SET_FILECHOOSER_DIR: get_current_file(): " << ImageManager.get_cur
 #endif // DEBUG
 		
 		Glib::ustring path;
-		
-		// is_loaded() reports false if a gdk pixbuf error occured, but what if we have
-		// multiple files in the list and this one is broken?
-		if( FileChooser.get_filename() != ImageManager.get_current_file() 
-			&& ( ImageBox.is_loaded() || ImageManager.have_multiple_files() ) )
-			{
-				if( !Glib::path_is_absolute( ImageManager.get_current_file() ) )
-					path = ImageManager.get_current_dir() + ImageManager.get_current_file();
-				else
-					path = ImageManager.get_current_file();
+	
+	// is_loaded() reports false if a gdk pixbuf error occured, but what if we have
+	// multiple files in the list and this one is broken? so we check for that as well
+	if( FileChooser.get_filename() != ImageManager.get_current_file() 
+		&& ( ImageBox.is_loaded() || ImageManager.have_multiple_files() ) )
+		{
+			if( !Glib::path_is_absolute( ImageManager.get_current_file() ) )
+				path = ImageManager.get_current_dir() + ImageManager.get_current_file();
+			else
+				path = ImageManager.get_current_file();
 
 #ifdef DEBUG
 std::cout << "SET_FILECHOOSER_DIR: selecting: " << path << std::endl;
 #endif // DEBUG	
-			
-				FileChooser.select_filename(path);
-				while(Gtk::Main::events_pending()) Gtk::Main::iteration();
+		
+			FileChooser.select_filename(path);
+			while(Gtk::Main::events_pending()) Gtk::Main::iteration();
 
 #ifdef DEBUG
 std::cout << "SET_FILECHOOSER_DIR: After set_file_chooser_dir()\n";
@@ -630,14 +626,12 @@ std::cout << "SET_FILECHOOSER_DIR: get_current_dir(): " << ImageManager.get_curr
 std::cout << "SET_FILECHOOSER_DIR: path: " << path << std::endl;
 #endif // DEBUG
 
-			}
-			
-		// if loading failed, set to the user's home dir
-		else
-			FileChooser.set_current_folder( Glib::get_home_dir() );
+		}
 		
-   	 	}
-
+	// if loading failed and we don't happen to have a broken file in a longer list
+	// set to the user's home dir
+	else
+		FileChooser.set_current_folder( Glib::get_home_dir() );
 	}
 
 // scales an image using the scalefactor only
